@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="grafito">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Plan de fuerza en dos sesiones semanales compatible con fútbol sala. Ejercicios, sustitutos y vídeos.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Segunda Parte">
+<title>Segunda Parte · Fuerza + Fútbol Sala</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Temas: cada superficie lleva su color de texto emparejado.
+       Sin opacidades sobre texto: todo contraste es explícito. ---------- */
+  html[data-tema="grafito"]{
+    color-scheme:dark;
+    --fondo:#101317; --cabecera:#1A1F25; --panel:#1C2127;
+    --texto:#FFFFFF; --texto2:#BFC7CF;
+    --borde:rgba(255,255,255,.16); --borde2:rgba(255,255,255,.38);
+    --acento:#7BA6FF; --sobreAcento:#0A1428;
+    --ok:#5FCF97; --sobreOk:#04231A;
+    --avisoBg:rgba(123,166,255,.12); --avisoBorde:rgba(123,166,255,.5);
+    --btnBg:#FFFFFF; --btnTexto:#101317;
+  }
+  html[data-tema="cal"]{
+    color-scheme:light;
+    --fondo:#EFF1F3; --cabecera:#E1E5E9; --panel:#FFFFFF;
+    --texto:#12171B; --texto2:#4E585F;
+    --borde:rgba(18,23,27,.16); --borde2:rgba(18,23,27,.38);
+    --acento:#1F4FD8; --sobreAcento:#FFFFFF;
+    --ok:#0E6845; --sobreOk:#FFFFFF;
+    --avisoBg:rgba(31,79,216,.08); --avisoBorde:rgba(31,79,216,.4);
+    --btnBg:#12171B; --btnTexto:#FFFFFF;
+  }
+  html[data-tema="vino"]{
+    color-scheme:dark;
+    --fondo:#1A060B; --cabecera:#2C0D15; --panel:#280C13;
+    --texto:#FFF7F2; --texto2:#DBB8B0;
+    --borde:rgba(255,247,242,.17); --borde2:rgba(255,247,242,.4);
+    --acento:#F0B75A; --sobreAcento:#2A1206;
+    --ok:#9AD3AE; --sobreOk:#0E2419;
+    --avisoBg:rgba(240,183,90,.13); --avisoBorde:rgba(240,183,90,.5);
+    --btnBg:#FFF7F2; --btnTexto:#1A060B;
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--fondo); color:var(--texto);
+    font-family:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:16px; line-height:1.45; padding-bottom:104px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:560px;margin:0 auto}
+  h1,h2,.dorsal,.tab,.eyebrow{font-family:'Archivo Black','Archivo',sans-serif;font-weight:900}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--texto2)}
+
+  header{position:relative;background:var(--cabecera);overflow:hidden;padding:20px 18px 16px;border-bottom:1px solid var(--borde2)}
+  header svg{position:absolute;inset:0;width:100%;height:100%;opacity:.2;color:var(--texto)}
+  header .hd{position:relative}
+  h1{font-size:clamp(30px,10vw,42px);line-height:.9;letter-spacing:-.02em;margin:6px 0 8px;text-transform:uppercase;color:var(--texto)}
+  h1 em{font-style:normal;color:var(--acento)}
+  .sub{color:var(--texto2);font-size:13.5px;max-width:36ch;margin:0 0 14px}
+  .row{position:relative;display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  .row > .k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--texto2);width:100%;margin-bottom:1px}
+  .pill{border:1px solid var(--borde2);background:transparent;color:var(--texto);font:inherit;font-size:12.5px;
+    padding:8px 12px;border-radius:99px;cursor:pointer}
+  .pill[aria-pressed="true"]{background:var(--acento);border-color:var(--acento);color:var(--sobreAcento);font-weight:700}
+  .pill:focus-visible,.tab:focus-visible,.chip:focus-visible,.set:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+  nav{position:sticky;top:0;z-index:20;background:var(--fondo);border-bottom:1px solid var(--borde)}
+  .tabs{display:flex;max-width:560px;margin:0 auto}
+  .tab{flex:1;appearance:none;border:0;border-bottom:3px solid transparent;background:none;color:var(--texto2);
+    font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;padding:14px 4px 11px;cursor:pointer}
+  .tab[aria-selected="true"]{color:var(--texto);border-bottom-color:var(--acento)}
+
+  main{padding:20px 16px 8px}
+  section[hidden],div[hidden]{display:none}
+  .lead{color:var(--texto2);font-size:14px;margin:0 0 18px;border-left:2px solid var(--acento);padding-left:12px}
+  h2{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:26px 0 10px;color:var(--texto)}
+  h2:first-child{margin-top:0}
+
+  .ex{border:1px solid var(--borde);border-radius:14px;background:var(--panel);margin-bottom:10px;overflow:hidden}
+  .ex.open{border-color:var(--borde2)}
+  .ex > .head{display:flex;align-items:center;gap:13px;width:100%;padding:13px 14px;background:none;border:0;color:inherit;
+    font:inherit;text-align:left;cursor:pointer}
+  .ex > .head:focus-visible{outline:2px solid var(--acento);outline-offset:-3px}
+  .dorsal{font-family:'Archivo Black',sans-serif;font-size:23px;line-height:1;color:var(--texto2);min-width:31px;letter-spacing:-.03em}
+  .ex.open .dorsal{color:var(--acento)}
+  .ex.done .dorsal{color:var(--ok)}
+  .nm{flex:1;min-width:0}
+  .nm b{display:block;font-weight:700;font-size:15.5px;line-height:1.25;color:var(--texto)}
+  .nm .alt{display:block;font-size:12px;color:var(--texto2)}
+  .reps{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:600;
+    padding:4px 8px;border:1px solid var(--borde2);border-radius:6px;white-space:nowrap;color:var(--texto)}
+  .chev{color:var(--texto2);font-size:12px;transition:transform .18s ease}
+  .ex.open .chev{transform:rotate(180deg)}
+
+  .body{padding:0 14px 16px;border-top:1px dashed var(--borde);margin-top:2px}
+  .lbl{display:block;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--texto2);margin:16px 0 8px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{border:1px solid var(--borde2);background:transparent;color:var(--texto);font:inherit;font-size:12.5px;
+    padding:8px 11px;border-radius:99px;cursor:pointer;text-align:left}
+  .chip[aria-pressed="true"]{background:var(--acento);border-color:var(--acento);color:var(--sobreAcento);font-weight:700}
+
+  .cues{list-style:none;padding:0;margin:16px 0 0}
+  .cues li{position:relative;padding-left:16px;font-size:14px;color:var(--texto);margin-bottom:7px}
+  .cues li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:1.5px;background:var(--acento)}
+
+  .sets{display:flex;flex-wrap:wrap;gap:8px}
+  .set{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--borde2);background:transparent;color:var(--texto);
+    font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:pointer}
+  .set[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--sobreOk);font-weight:700}
+
+  .vid{margin-top:18px;border-top:1px dashed var(--borde);padding-top:14px}
+  .yt{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:10px;
+    background:var(--acento);color:var(--sobreAcento);border:0;font:inherit;font-weight:700;font-size:14.5px;text-decoration:none;cursor:pointer}
+  .frame{position:relative;padding-top:56.25%;margin-top:12px;border-radius:10px;overflow:hidden;background:#000}
+  .frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .pin{display:flex;gap:8px;margin-top:10px}
+  .pin input{flex:1;min-width:0;background:var(--fondo);border:1px solid var(--borde2);border-radius:9px;color:var(--texto);
+    padding:11px 12px;font:inherit;font-size:13.5px;-webkit-text-fill-color:var(--texto)}
+  .pin input::placeholder{color:var(--texto2);-webkit-text-fill-color:var(--texto2)}
+  .pin button{background:transparent;border:1px solid var(--borde2);border-radius:9px;color:var(--texto);font:inherit;
+    font-size:13.5px;padding:11px 14px;cursor:pointer}
+  .hint{font-size:11.5px;color:var(--texto2);margin:8px 0 0}
+
+  .no{border:1px solid var(--avisoBorde);border-radius:14px;padding:14px;background:var(--avisoBg)}
+  .no ul{margin:0;padding-left:0;list-style:none;columns:2;column-gap:14px}
+  .no li{font-size:13.5px;margin-bottom:5px;color:var(--texto)}
+  .no li::before{content:"✕ ";color:var(--acento);font-weight:700}
+  .no.si li::before{content:"✓ ";color:var(--ok)}
+  .note{background:var(--panel);border:1px solid var(--borde);border-radius:14px;padding:15px;font-size:14px;color:var(--texto)}
+
+  .day{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--borde)}
+  .day .d{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--texto2);width:38px;padding-top:2px}
+  .day .t{flex:1}
+  .day .t b{display:block;font-size:15px;color:var(--texto)}
+  .day .t span{font-size:12.5px;color:var(--texto2)}
+  .day.hot .t b{color:var(--acento)}
+  .day.ball .t b{color:var(--ok)}
+
+  .marcador{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--cabecera);
+    border-top:1px solid var(--borde2);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+  .marcador .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:11px}
+  .score{flex:1;min-width:0}
+  .score .k{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--texto2);white-space:nowrap}
+  .score .v{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:19px;font-weight:600;color:var(--texto)}
+  .clock{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:25px;font-weight:600;min-width:74px;text-align:right;color:var(--texto)}
+  .clock.run{color:var(--acento)}
+  .tbtn{background:transparent;border:1px solid var(--borde2);border-radius:9px;color:var(--texto);font:inherit;
+    font-size:12.5px;padding:9px 11px;cursor:pointer}
+  .tbtn.main{background:var(--btnBg);color:var(--btnTexto);border-color:var(--btnBg);font-weight:700}
+  footer{padding:24px 16px 10px;color:var(--texto2);font-size:11.5px;text-align:center}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <svg viewBox="0 0 400 150" preserveAspectRatio="none" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1.2">
+      <rect x="8" y="8" width="384" height="134"/>
+      <line x1="200" y1="8" x2="200" y2="142"/>
+      <circle cx="200" cy="75" r="30"/>
+      <path d="M8 45 a30 30 0 0 1 0 60"/>
+      <path d="M392 45 a30 30 0 0 0 0 60"/>
+    </g>
+  </svg>
+  <div class="hd">
+    <p class="eyebrow" id="eyebrow">2 sesiones · 1 partido</p>
+    <h1>Segunda <em>Parte</em></h1>
+    <p class="sub" id="sub">El gimnasio construye piernas y espalda. El fútbol sala es el finisher.</p>
+
+    <div class="row" role="group" aria-label="Semana">
+      <span class="k">Esta semana</span>
+      <button class="pill" type="button" id="m-si" aria-pressed="true">Hay partido</button>
+      <button class="pill" type="button" id="m-no" aria-pressed="false">Sin partido</button>
+    </div>
+
+    <div class="row" role="group" aria-label="Tema">
+      <span class="k">Tema</span>
+      <button class="pill tema" type="button" data-t="grafito" aria-pressed="true">Grafito</button>
+      <button class="pill tema" type="button" data-t="cal" aria-pressed="false">Claro</button>
+      <button class="pill tema" type="button" data-t="vino" aria-pressed="false">Vino</button>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="tabs" role="tablist" aria-label="Secciones">
+    <button class="tab" role="tab" id="t-d1" aria-controls="s-d1" aria-selected="true">Día 1</button>
+    <button class="tab" role="tab" id="t-d2" aria-controls="s-d2" aria-selected="false">Día 2</button>
+    <button class="tab" role="tab" id="t-sem" aria-controls="s-sem" aria-selected="false">Semana</button>
+    <button class="tab" role="tab" id="t-mov" aria-controls="s-mov" aria-selected="false">Movilidad</button>
+  </div>
+</nav>
+
+<main>
+  <section id="s-d1" role="tabpanel" aria-labelledby="t-d1">
+    <p class="lead" id="lead-d1"></p>
+    <div id="list-d1"></div>
+    <h2>Final</h2>
+    <div class="note" id="final-d1"></div>
+  </section>
+
+  <section id="s-d2" role="tabpanel" aria-labelledby="t-d2" hidden>
+    <p class="lead" id="lead-d2"></p>
+    <div id="list-d2"></div>
+
+    <div id="bloque-partido">
+      <h2>Prohibido hoy</h2>
+      <div class="no">
+        <ul><li>Trap bar pesado</li><li>Prensa pesada</li><li>Sentadillas</li><li>RDL</li><li>Zancadas</li><li>Step-ups</li></ul>
+      </div>
+      <h2>Calentamiento antes del partido · 5–8 min</h2>
+      <div id="list-cal"></div>
+      <div class="note">Nada de cardio intenso después del gimnasio. Del vestuario a la pista con esto y ya.</div>
+    </div>
+
+    <div id="bloque-sinpartido" hidden>
+      <h2>Hoy sí toca</h2>
+      <div class="no si">
+        <ul><li>Bisagra de cadera</li><li>Trabajo unilateral</li><li>Cardio de verdad</li><li>Rango completo</li></ul>
+      </div>
+      <div class="note">Sin partido, las piernas dejan de tener excusa: aquí entra la bisagra y el trabajo a una pierna que en semana de partido no puedes permitirte.</div>
+    </div>
+  </section>
+
+  <section id="s-sem" role="tabpanel" aria-labelledby="t-sem" hidden>
+    <p class="lead" id="lead-sem"></p>
+    <div class="row" role="group" aria-label="Día de referencia" style="margin:0 0 18px">
+      <span class="k" id="pick-k">Juego el</span>
+      <div class="chips" id="daypick"></div>
+    </div>
+    <div id="week"></div>
+    <h2>Por qué así</h2>
+    <div class="note" id="why-sem"></div>
+  </section>
+
+  <section id="s-mov" role="tabpanel" aria-labelledby="t-mov" hidden>
+    <p class="lead">A partir de la semana 4–6: 10 min de tobillo, rodilla y cadera. Vale más que otro finisher de cardio.</p>
+    <div id="list-mov"></div>
+    <h2>Cuándo</h2>
+    <div class="note">Al final del Día 1 o en el día de recuperación. Sin buscar fatiga. Es la póliza de seguro de tus rodillas y tus tobillos.</div>
+  </section>
+</main>
+
+<footer>Cada ficha abre la búsqueda en YouTube. Si un vídeo te sirve, pega el enlace y se queda incrustado durante la sesión.</footer>
+</div>
+
+<div class="marcador">
+  <div class="in">
+    <div class="score">
+      <div class="k" id="scoreK">Día 1 · series</div>
+      <div class="v" id="scoreV">0/16</div>
+    </div>
+    <div class="clock" id="clock">2:00</div>
+    <button class="tbtn main" id="tStart">Descanso</button>
+    <button class="tbtn" id="tSet">2:00</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var EX = {
+    "01": {n:"Trap Bar Deadlift", q:"trap bar deadlift tecnica correcta", c:[
+        "Barra a media espinilla, tibias casi verticales, pecho alto.",
+        "Empuja el suelo con los pies en vez de tirar con la espalda.",
+        "Si la lumbar se redondea, la serie ha terminado."],
+      alts:[
+        {n:"Peso muerto con mancuernas desde bloques", q:"peso muerto con mancuernas tecnica", c:[
+          "Mancuernas a los lados, sobre discos para acortar el recorrido.",
+          "Misma idea: cadera atrás, espalda neutra."]},
+        {n:"Hip thrust en máquina", q:"hip thrust maquina tecnica gluteo", c:[
+          "Cero carga en la columna, todo glúteo e isquio.",
+          "Aprieta arriba 1 s, sin arquear la lumbar."]},
+        {n:"Rack pull", q:"rack pull tecnica peso muerto parcial", c:[
+          "Barra a la altura de la rodilla en el rack.",
+          "Menos rango, misma fuerza de espalda."]}
+      ]},
+    "02": {n:"Press inclinado con mancuernas", q:"press inclinado con mancuernas tecnica", c:[
+        "Banco a 30°, no más: por encima trabaja el hombro, no el pecho.",
+        "Codos a unos 45° del torso, nunca abiertos en cruz.",
+        "Escápulas atrás y abajo, pecho alto todo el rato."],
+      alts:[
+        {n:"Press de pecho en máquina", q:"press de pecho maquina tecnica", c:[
+          "Trayectoria guiada: puedes acercarte al fallo con seguridad.",
+          "Ideal si entrenas solo o el hombro está sensible."]},
+        {n:"Press plano con mancuernas", q:"press banca plano con mancuernas tecnica", c:[
+          "Más pecho bajo, menos hombro.",
+          "Sube en curva hacia el centro, no recto."]},
+        {n:"Fondos en máquina asistida", q:"fondos paralelas asistidos maquina tecnica", c:[
+          "Torso algo inclinado, codos cerca del cuerpo.",
+          "Con 110 kg, siempre con asistencia al principio."]}
+      ]},
+    "03": {n:"Remo con pecho apoyado", q:"remo con pecho apoyado banco inclinado tecnica", c:[
+        "Pecho pegado al banco: si te separas, estás usando la cadera.",
+        "Codos hacia la cadera y aprieta un segundo arriba.",
+        "Tu mejor ejercicio de espalda: cero carga lumbar."],
+      alts:[
+        {n:"Remo sentado en máquina", q:"remo sentado en maquina tecnica espalda", c:[
+          "Pecho contra el soporte, sin balancear el torso.",
+          "Más fácil de progresar en peso."]},
+        {n:"Remo a una mano con mancuerna", q:"remo con mancuerna una mano apoyado banco tecnica", c:[
+          "Rodilla y mano en el banco, espalda paralela al suelo.",
+          "Corrige asimetrías entre lados."]},
+        {n:"Remo en polea baja", q:"remo en polea baja sentado tecnica", c:[
+          "Tensión constante en todo el recorrido.",
+          "Que no acabe tirando la lumbar."]}
+      ]},
+    "04": {n:"Prensa de piernas", q:"prensa de piernas tecnica correcta rango", c:[
+        "Baja hasta acercar el muslo al torso sin despegar la pelvis.",
+        "Rodillas alineadas con los pies, sin caer hacia dentro.",
+        "No bloquees las rodillas de golpe arriba."],
+      alts:[
+        {n:"Hack squat", q:"hack squat maquina tecnica", c:[
+          "Más parecido a la sentadilla, con la espalda apoyada.",
+          "Empieza ligero: el rango es más exigente que en prensa."]},
+        {n:"Prensa a una pierna", q:"prensa de piernas una pierna unilateral tecnica", c:[
+          "La mitad del peso, el doble de valor para la pista.",
+          "En fútbol sala casi todo pasa sobre una sola pierna."]},
+        {n:"Sentadilla goblet a cajón", q:"goblet squat cajon tecnica", c:[
+          "Mancuerna al pecho, te sientas y te levantas del cajón.",
+          "Enseña el patrón sin castigar la espalda."]}
+      ]},
+    "05": {n:"Jalón al pecho", q:"jalon al pecho tecnica correcta dorsal", c:[
+        "Barra al pecho, nunca a la nuca. Torso ligeramente atrás y firme.",
+        "Piensa en llevar los codos a los bolsillos.",
+        "Subida controlada: media serie que casi todos regalan."],
+      alts:[
+        {n:"Jalón con agarre neutro", q:"jalon agarre neutro paralelo tecnica", c:[
+          "Palmas enfrentadas: más amable con hombro y codo."]},
+        {n:"Dominadas asistidas en máquina", q:"dominadas asistidas maquina tecnica", c:[
+          "Mismo patrón con tu peso descontado.",
+          "Progresa quitando asistencia."]},
+        {n:"Pull-over en polea alta", q:"pull over en polea alta dorsal tecnica", c:[
+          "Brazos casi rectos, solo dorsal.",
+          "Buen recambio si el codo se queja."]}
+      ]},
+    "06": {n:"Press de hombros con mancuernas", q:"press militar con mancuernas sentado tecnica", c:[
+        "Sentado con respaldo, costillas abajo, sin arquear la lumbar.",
+        "Mancuernas a la altura de las orejas al bajar.",
+        "Si el hombro molesta, gira las palmas hacia dentro."],
+      alts:[
+        {n:"Press de hombros en máquina", q:"press de hombros en maquina tecnica", c:[
+          "Trayectoria fija: más carga con menos riesgo."]},
+        {n:"Landmine press", q:"landmine press hombro tecnica", c:[
+          "Barra en ángulo: plano más cómodo para el hombro."]},
+        {n:"Elevaciones laterales", q:"elevaciones laterales mancuernas tecnica", c:[
+          "Poco peso, buen control.",
+          "Solo si hoy el hombro no aguanta un press."]}
+      ]},
+    "07": {n:"Farmer Walk", q:"farmer walk tecnica agarre core", c:[
+        "Camina alto, hombros atrás, sin inclinarte a un lado.",
+        "Pasos cortos y firmes. Respira.",
+        "Core y agarre: el fútbol sala te lo agradecerá."],
+      alts:[
+        {n:"Suitcase carry (una mano)", q:"suitcase carry ejercicio core tecnica", c:[
+          "Una sola mancuerna: el core pelea para que no te inclines.",
+          "Baja el peso a la mitad."]},
+        {n:"Encogimientos con mancuernas", q:"encogimientos de hombros mancuernas tecnica", c:[
+          "Si no puedes caminar con peso en tu gimnasio.",
+          "Arriba y abajo, sin rotar los hombros."]},
+        {n:"Paseo con trineo", q:"sled push arrastre trineo tecnica", c:[
+          "Cardio y piernas sin impacto ni fase excéntrica.",
+          "Nunca antes del partido."]}
+      ]},
+    "08": {n:"Pallof Press", q:"pallof press tecnica core antirotacion", c:[
+        "Es antirrotación: el objetivo es que el torso NO gire.",
+        "Extiende los brazos despacio y aguanta 2 s fuera.",
+        "Glúteos activos, costillas abajo."],
+      alts:[
+        {n:"Plancha sobre codos", q:"plancha abdominal sobre codos tecnica correcta", reps:"3 × 20–40 s", c:[
+          "Codos bajo los hombros, glúteos apretados, pelvis metida.",
+          "Línea recta: sin culo arriba ni lumbar hundida.",
+          "Si pasas de 45 s, no añadas tiempo: sube una pierna o pon peso."]},
+        {n:"Dead bug", q:"dead bug ejercicio core tecnica", reps:"2 × 8 /lado", c:[
+          "Lumbar pegada al suelo todo el rato. Ese es el ejercicio.",
+          "Baja brazo y pierna contrarios despacio."]},
+        {n:"Plancha lateral", q:"plancha lateral tecnica correcta", reps:"2 × 20–30 s /lado", c:[
+          "Cadera alta, cuerpo alineado.",
+          "Lateral del tronco: clave para frenar y girar."]}
+      ]},
+    /* Refuerzos que solo aparecen en semanas sin partido */
+    "09": {n:"Peso muerto rumano con mancuernas", q:"peso muerto rumano mancuernas tecnica", c:[
+        "Bisagra de cadera: culo atrás, rodillas casi fijas.",
+        "Baja hasta notar el isquio, no hasta el suelo.",
+        "El isquio fuerte es lo que te protege del tirón en el sprint."],
+      alts:[
+        {n:"Hip thrust en máquina", q:"hip thrust maquina tecnica gluteo", c:["Cero carga lumbar, todo glúteo.","Aprieta 1 s arriba."]},
+        {n:"Curl femoral en máquina", q:"curl femoral tumbado maquina tecnica", c:["Aislado y seguro.","Fase de bajada lenta, 3 s."]},
+        {n:"Peso muerto rumano con barra", q:"peso muerto rumano barra tecnica", c:["Más carga posible, más exigencia técnica.","Solo si la espalda va fina."]}
+      ]},
+    "10": {n:"Zancadas caminando", q:"zancadas caminando tecnica correcta", reps:"2 × 8 /lado", c:[
+        "Paso largo, torso vertical, rodilla de atrás casi al suelo.",
+        "Sin peso las primeras semanas: con 110 kg ya llevas carga de sobra.",
+        "Esto es lo que te prepara para frenar y arrancar en pista."],
+      alts:[
+        {n:"Step-up al cajón", q:"step up al cajon tecnica correcta", reps:"2 × 8 /lado", c:[
+          "Cajón a la altura de la rodilla o menos.",
+          "Sube empujando con la pierna de arriba, no con un impulso."]},
+        {n:"Sentadilla búlgara asistida", q:"sentadilla bulgara tecnica correcta", reps:"2 × 8 /lado", c:[
+          "Agárrate a algo para el equilibrio y baja controlado."]},
+        {n:"Prensa a una pierna", q:"prensa de piernas una pierna unilateral tecnica", reps:"2 × 10 /lado", c:[
+          "La opción más segura si las rodillas están sensibles."]}
+      ]},
+    "11": {n:"Cardio: intervalos suaves", q:"intervalos bici estatica principiantes rutina", reps:"8–10 min", c:[
+        "Bici o remo: 40 s a ritmo fuerte / 80 s suave, 4–5 rondas.",
+        "\"Fuerte\" es no poder mantener una conversación, no reventarte.",
+        "Sin partido, este es el hueco que tienes que tapar."],
+      alts:[
+        {n:"Caminata en cinta con inclinación", q:"caminar cinta inclinacion cardio", reps:"15 min", c:[
+          "Inclinación 8–10%, ritmo cómodo. Cero impacto.",
+          "La opción más amable con las rodillas."]},
+        {n:"Elíptica continua", q:"eliptica tecnica cardio principiantes", reps:"12–15 min", c:[
+          "Ritmo constante en el que puedas hablar con frases cortas."]},
+        {n:"Remo continuo", q:"remo maquina tecnica correcta cardio", reps:"10 min", c:[
+          "Piernas primero, luego tronco y brazos.",
+          "Suma espalda al trabajo cardiovascular."]}
+      ]}
+  };
+
+  var PLAN = {
+    conPartido: {
+      d1: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
+           {id:"04",sets:3,reps:"3 × 8–12"},{id:"05",sets:2,reps:"2 × 10–12"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
+      d2: [{id:"06",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
+           {id:"02",sets:3,reps:"3 × 8–12",nota:"Variante plana o en máquina"},
+           {id:"03",sets:2,reps:"2 × 10–12"},{id:"07",sets:2,reps:"2 × 30–40 s"},{id:"08",sets:2,reps:"2 × 10 /lado"}],
+      eyebrow:"2 sesiones · 1 partido",
+      sub:"El gimnasio construye piernas y espalda. El fútbol sala es el finisher.",
+      leadD1:"Día fuerte. Fuerza de verdad dejando 2–3 repeticiones en el depósito (RIR 2–3). Descanso 2–3 min en los básicos.",
+      finalD1:"8 min de bici o remo, moderado. Debes poder hablar mientras lo haces. No es un intervalo, es riego sanguíneo.",
+      leadD2:"Mismo día que el partido. Tren superior y core. Las piernas ya tienen trabajo esperándolas en la pista.",
+      tabD2:"Día 2 + ⚽",
+      leadSem:"Elige el día del partido: el día fuerte cae 3 días antes.",
+      pickK:"Juego el",
+      whySem:"El fútbol sala no es \"un día de cardio\". Acelerar, frenar, girar y saltar con 110 kg es mucha carga mecánica. El gimnasio construye glúteo, isquio, cuádriceps, espalda y core sin que llegues al partido con las piernas fundidas."
+    },
+    sinPartido: {
+      d1: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
+           {id:"04",sets:3,reps:"3 × 10–12",nota:"Un poco más de repeticiones, sin partido que respetar"},
+           {id:"05",sets:2,reps:"2 × 10–12"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
+      d2: [{id:"06",sets:3,reps:"3 × 8–10"},{id:"09",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
+           {id:"10",sets:2,reps:"2 × 8 /lado"},{id:"02",sets:2,reps:"2 × 8–12",nota:"Variante plana o en máquina"},
+           {id:"03",sets:2,reps:"2 × 10–12"},{id:"08",sets:2,reps:"2 × 10 /lado"},{id:"11",sets:1,reps:"8–10 min"}],
+      eyebrow:"Pretemporada · 2 sesiones completas",
+      sub:"Sin partidos, el gimnasio asume todo: piernas completas y el cardio que antes ponía la pista.",
+      leadD1:"Día fuerte. Igual que en semana de partido, pero sin necesidad de guardar nada para el viernes. RIR 2–3.",
+      finalD1:"8 min de bici o remo, moderado. Y si te sobra tiempo, mejor movilidad que más cardio.",
+      leadD2:"Sin partido, este día cambia de trabajo: entra bisagra de cadera, trabajo a una pierna y cardio real al final.",
+      tabD2:"Día 2",
+      leadSem:"Elige el día del Día 1: el Día 2 cae 3 días después.",
+      pickK:"Día 1 el",
+      whySem:"Esta es la ventana buena. Sin partidos puedes cargar las piernas sin miedo y llegar a la vuelta de liga con base. En cuanto vuelvan los partidos, cambia el interruptor: la bisagra y el trabajo unilateral salen del Día 2, o llegarás a la pista con las piernas muertas."
+    }
+  };
+
+  var CAL = [
+    {n:"Trote muy suave", reps:"90 s", q:"trote suave calentamiento futbol sala", c:["Solo entrar en calor. Nada de ritmo."]},
+    {n:"Movilidad de tobillo", reps:"10 /lado", q:"movilidad de tobillo pared calentamiento", c:["Rodilla al frente sin despegar el talón.","Clave para frenar y girar en pista."]},
+    {n:"Movilidad de cadera", reps:"8 /lado", q:"movilidad de cadera dinamica calentamiento futbol", c:["Círculos y aperturas amplias, sin forzar."]},
+    {n:"Balanceos de piernas", reps:"10 /lado", q:"balanceos de piernas calentamiento dinamico", c:["Adelante-atrás y lateral, agarrado a la portería."]},
+    {n:"Aceleraciones progresivas", reps:"2–3 × 15 m", q:"aceleraciones progresivas calentamiento futbol sala", c:["La primera al 60%, la última al 85%. Nunca al 100% en frío."]}
+  ];
+
+  var MOV = [
+    {n:"Movilidad de tobillo en pared", reps:"2 × 10 /lado", q:"movilidad dorsiflexion tobillo pared ejercicio", c:["La rodilla toca la pared con el talón clavado.","Poco tobillo = rodilla y cadera pagando la factura."]},
+    {n:"Elevación de talones excéntrica", reps:"2 × 12", q:"elevacion de talones excentrica gemelo soleo", c:["Sube con dos piernas, baja despacio con una.","Protege el tendón de Aquiles."]},
+    {n:"90/90 de cadera", reps:"2 × 8 /lado", q:"ejercicio 90 90 movilidad cadera", c:["Cambios de lado lentos, sentado en el suelo.","Rotación interna y externa: los giros del partido."]},
+    {n:"Sentadilla profunda asistida", reps:"3 × 20 s", q:"sentadilla profunda asistida movilidad", c:["Agarrado a algo para no compensar. Respira abajo."]},
+    {n:"Equilibrio a una pierna", reps:"2 × 30 s /lado", q:"equilibrio monopodal propiocepcion tobillo ejercicio", c:["Progresa cerrando los ojos.","Lo que evita el esguince tonto."]}
+  ];
+
+  var modo = "conPartido";
+  var pinned = {};
+  var done = {d1:{}, d2:{}};
+  var refDay = 4; // viernes
+
+  function ytSearch(q){ return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q); }
+  function ytId(u){
+    var m = String(u).match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([A-Za-z0-9_-]{11})/);
+    if(m) return m[1];
+    m = String(u).trim().match(/^[A-Za-z0-9_-]{11}$/);
+    return m ? m[0] : null;
+  }
+
+  function card(o){
+    var variants = [{n:o.n,q:o.q,c:o.c,reps:o.reps}].concat((o.alts||[]).map(function(a){
+      return {n:a.n,q:a.q,c:a.c,reps:a.reps||o.reps};
+    }));
+    var cur = 0, chipEls = null;
+
+    var el = document.createElement("article");
+    el.className = "ex";
+    el.innerHTML =
+      '<button class="head" aria-expanded="false">' +
+        '<span class="dorsal">' + o.badge + '</span>' +
+        '<span class="nm"><b></b><span class="alt"></span></span>' +
+        '<span class="reps"></span><span class="chev">▾</span>' +
+      '</button>' +
+      '<div class="body" hidden>' +
+        (variants.length > 1 ? '<span class="lbl">Cambiar por</span><div class="chips"></div>' : '') +
+        '<ul class="cues"></ul>' +
+        (o.sets ? '<span class="lbl">Series completadas</span><div class="sets"></div>' : '') +
+        '<div class="vid">' +
+          '<a class="yt" target="_blank" rel="noopener">▶ Ver cómo se hace</a>' +
+          '<div class="holder"></div>' +
+          '<div class="pin"><input type="url" inputmode="url" placeholder="Pega el enlace del vídeo"><button type="button">Fijar</button></div>' +
+          '<p class="hint">Al fijarlo se queda incrustado en esta ficha.</p>' +
+        '</div>' +
+      '</div>';
+
+    var nameEl = el.querySelector(".nm b"), altEl = el.querySelector(".nm .alt"),
+        repsEl = el.querySelector(".reps"), cuesEl = el.querySelector(".cues"),
+        ytEl = el.querySelector(".yt"), holder = el.querySelector(".holder"),
+        hint = el.querySelector(".hint"), input = el.querySelector(".pin input"),
+        pinBtn = el.querySelector(".pin button");
+
+    function renderVideo(){
+      var id = pinned[variants[cur].q];
+      holder.innerHTML = "";
+      if(!id) return;
+      var f = document.createElement("div");
+      f.className = "frame";
+      f.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '" title="Vídeo" ' +
+        'allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
+      holder.appendChild(f);
+    }
+    function paint(){
+      var v = variants[cur];
+      nameEl.textContent = v.n;
+      altEl.textContent = cur === 0 ? (o.nota || "") : "Sustituye a " + variants[0].n;
+      altEl.style.display = altEl.textContent ? "block" : "none";
+      repsEl.textContent = v.reps;
+      cuesEl.innerHTML = "";
+      v.c.forEach(function(t){ var li = document.createElement("li"); li.textContent = t; cuesEl.appendChild(li); });
+      ytEl.href = ytSearch(v.q);
+      renderVideo();
+      if(chipEls) chipEls.forEach(function(b,i){ b.setAttribute("aria-pressed", i === cur ? "true" : "false"); });
+    }
+
+    if(variants.length > 1){
+      var chips = el.querySelector(".chips");
+      chipEls = variants.map(function(v,i){
+        var b = document.createElement("button");
+        b.className = "chip"; b.type = "button";
+        b.textContent = i === 0 ? "Principal" : v.n;
+        b.addEventListener("click", function(){ cur = i; paint(); });
+        chips.appendChild(b);
+        return b;
+      });
+    }
+
+    var head = el.querySelector(".head"), body = el.querySelector(".body");
+    head.addEventListener("click", function(){
+      var open = body.hidden;
+      body.hidden = !open;
+      el.classList.toggle("open", open);
+      head.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    if(o.sets){
+      var box = el.querySelector(".sets");
+      for(var i = 1; i <= o.sets; i++){
+        (function(i){
+          var b = document.createElement("button");
+          b.className = "set"; b.type = "button"; b.textContent = i;
+          b.setAttribute("aria-pressed","false");
+          b.setAttribute("aria-label","Serie " + i);
+          b.addEventListener("click", function(){
+            var on = b.getAttribute("aria-pressed") === "true";
+            b.setAttribute("aria-pressed", on ? "false" : "true");
+            done[o.day][o.key + "-" + i] = !on;
+            var all = Array.prototype.every.call(box.querySelectorAll(".set"), function(s){
+              return s.getAttribute("aria-pressed") === "true"; });
+            el.classList.toggle("done", all);
+            score();
+            if(!on) startTimer();
+          });
+          box.appendChild(b);
+        })(i);
+      }
+    }
+
+    pinBtn.addEventListener("click", function(){
+      var id = ytId(input.value);
+      if(!id){ hint.textContent = "Ese enlace no lleva a un vídeo de YouTube. Copia la URL completa."; return; }
+      pinned[variants[cur].q] = id;
+      input.value = "";
+      hint.textContent = "Vídeo fijado. Se mantiene mientras no recargues la página.";
+      renderVideo();
+    });
+    input.addEventListener("keydown", function(e){ if(e.key === "Enter") pinBtn.click(); });
+
+    paint();
+    return el;
+  }
+
+  function buildDay(target, plan, day){
+    var host = document.getElementById(target);
+    host.innerHTML = "";
+    plan.forEach(function(p, idx){
+      var b = EX[p.id];
+      host.appendChild(card({
+        key: p.id + "#" + idx, badge: p.id, day: day,
+        n: b.n, q: b.q, c: b.c, alts: b.alts,
+        reps: p.reps, sets: p.sets, nota: p.nota
+      }));
+    });
+  }
+  function buildSimple(target, arr){
+    var host = document.getElementById(target);
+    host.innerHTML = "";
+    arr.forEach(function(a, i){
+      host.appendChild(card({key:"x", badge:String(i+1), day:"d1", n:a.n, q:a.q, c:a.c, reps:a.reps, sets:0}));
+    });
+  }
+
+  /* ---------- Semana ---------- */
+  var ABR = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+  function buildPicker(){
+    var host = document.getElementById("daypick");
+    host.innerHTML = "";
+    ABR.forEach(function(d,i){
+      var b = document.createElement("button");
+      b.className = "chip"; b.type = "button"; b.textContent = d;
+      b.setAttribute("aria-pressed", i === refDay ? "true" : "false");
+      b.addEventListener("click", function(){ refDay = i; buildPicker(); week(); });
+      host.appendChild(b);
+    });
+  }
+  function week(){
+    var host = document.getElementById("week");
+    host.innerHTML = "";
+    var partido = modo === "conPartido";
+    var d2 = partido ? refDay : (refDay + 3) % 7;
+    var d1 = partido ? (refDay - 3 + 7) % 7 : refDay;
+    for(var i = 0; i < 7; i++){
+      var cls = "", title = "Descanso", sub = "Nada. El descanso es parte del plan.";
+      if(i === d1){ cls = "hot"; title = "Día 1 — Fuerza completa"; sub = "Trap bar, prensa, empujes y tirones. RIR 2–3."; }
+      else if(i === d2){
+        cls = "ball";
+        title = partido ? "Día 2 + Fútbol sala" : "Día 2 — Piernas y cardio";
+        sub = partido ? "Tren superior y core, y 1 h de partido." : "Bisagra, unilateral, tirones y 8–10 min de intervalos.";
+      }
+      else if(i === (d1 + 1) % 7 || i === (d2 + 1) % 7){
+        title = "Recuperación";
+        sub = partido ? "Caminar 30–40 min, suave." : "Caminar o bici 25–30 min, suave.";
+      }
+      var row = document.createElement("div");
+      row.className = "day " + cls;
+      row.innerHTML = '<div class="d">' + ABR[i] + '</div><div class="t"><b></b><span></span></div>';
+      row.querySelector("b").textContent = title;
+      row.querySelector("span").textContent = sub;
+      host.appendChild(row);
+    }
+  }
+
+  /* ---------- Render por modo ---------- */
+  function render(){
+    var p = PLAN[modo], partido = modo === "conPartido";
+    document.getElementById("eyebrow").textContent = p.eyebrow;
+    document.getElementById("sub").textContent = p.sub;
+    document.getElementById("lead-d1").textContent = p.leadD1;
+    document.getElementById("final-d1").textContent = p.finalD1;
+    document.getElementById("lead-d2").textContent = p.leadD2;
+    document.getElementById("t-d2").textContent = p.tabD2;
+    document.getElementById("lead-sem").textContent = p.leadSem;
+    document.getElementById("pick-k").textContent = p.pickK;
+    document.getElementById("why-sem").textContent = p.whySem;
+    document.getElementById("bloque-partido").hidden = !partido;
+    document.getElementById("bloque-sinpartido").hidden = partido;
+
+    done = {d1:{}, d2:{}};
+    buildDay("list-d1", p.d1, "d1");
+    buildDay("list-d2", p.d2, "d2");
+    if(partido) buildSimple("list-cal", CAL);
+    buildPicker(); week(); score();
+  }
+
+  var mSi = document.getElementById("m-si"), mNo = document.getElementById("m-no");
+  function setModo(m){
+    modo = m;
+    mSi.setAttribute("aria-pressed", m === "conPartido" ? "true" : "false");
+    mNo.setAttribute("aria-pressed", m === "sinPartido" ? "true" : "false");
+    refDay = m === "conPartido" ? 4 : 0;
+    render();
+  }
+  mSi.addEventListener("click", function(){ setModo("conPartido"); });
+  mNo.addEventListener("click", function(){ setModo("sinPartido"); });
+
+  /* Temas */
+  var temaBtns = [].slice.call(document.querySelectorAll(".tema"));
+  temaBtns.forEach(function(b){
+    b.addEventListener("click", function(){
+      document.documentElement.setAttribute("data-tema", b.getAttribute("data-t"));
+      temaBtns.forEach(function(o){ o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+    });
+  });
+
+  /* Pestañas */
+  var tabs = [].slice.call(document.querySelectorAll(".tab"));
+  tabs.forEach(function(t){
+    t.addEventListener("click", function(){
+      tabs.forEach(function(o){
+        var sel = o === t;
+        o.setAttribute("aria-selected", sel ? "true" : "false");
+        document.getElementById(o.getAttribute("aria-controls")).hidden = !sel;
+      });
+      window.scrollTo({top:0, behavior:"smooth"});
+      score();
+    });
+  });
+  function currentDay(){
+    return document.getElementById("t-d2").getAttribute("aria-selected") === "true" ? "d2" : "d1";
+  }
+
+  /* Marcador */
+  function score(){
+    var d = currentDay(), plan = PLAN[modo][d];
+    var tot = plan.reduce(function(a,p){ return a + p.sets; }, 0);
+    var n = Object.keys(done[d]).filter(function(k){ return done[d][k]; }).length;
+    document.getElementById("scoreK").textContent = (d === "d2" ? "Día 2" : "Día 1") + " · series";
+    document.getElementById("scoreV").textContent = n + "/" + tot;
+  }
+
+  /* Cronómetro */
+  var lens = [90,120,180], li = 1, left = 120, tick = null;
+  var clock = document.getElementById("clock"), startB = document.getElementById("tStart"), setB = document.getElementById("tSet");
+  function fmt(s){ return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); }
+  function paintClock(){ clock.textContent = fmt(left); }
+  function stopTimer(){ if(tick) clearInterval(tick); tick = null; clock.classList.remove("run"); startB.textContent = "Descanso"; }
+  function startTimer(){
+    stopTimer(); left = lens[li]; paintClock();
+    clock.classList.add("run"); startB.textContent = "Parar";
+    tick = setInterval(function(){
+      left--; paintClock();
+      if(left <= 0){ stopTimer(); left = lens[li]; paintClock(); if(navigator.vibrate) navigator.vibrate([180,90,180]); }
+    }, 1000);
+  }
+  startB.addEventListener("click", function(){ tick ? (stopTimer(), left = lens[li], paintClock()) : startTimer(); });
+  setB.addEventListener("click", function(){
+    li = (li + 1) % lens.length; setB.textContent = fmt(lens[li]);
+    if(!tick){ left = lens[li]; paintClock(); }
+  });
+  setB.textContent = fmt(lens[li]); paintClock();
+
+  render();
+})();
+</script>
+</body>
+</html>
