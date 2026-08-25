@@ -18,9 +18,9 @@
     --fondo:#101317; --cabecera:#1A1F25; --panel:#1C2127;
     --texto:#FFFFFF; --texto2:#BFC7CF;
     --borde:rgba(255,255,255,.16); --borde2:rgba(255,255,255,.38);
-    --acento:#7BA6FF; --sobreAcento:#0A1428;
+    --acento:#7BE05C; --sobreAcento:#0A2810;
     --ok:#5FCF97; --sobreOk:#04231A;
-    --avisoBg:rgba(123,166,255,.12); --avisoBorde:rgba(123,166,255,.5);
+    --avisoBg:rgba(123,224,92,.12); --avisoBorde:rgba(123,224,92,.5);
     --btnBg:#FFFFFF; --btnTexto:#101317;
   }
   html[data-tema="cal"]{
@@ -56,7 +56,7 @@
   h1,h2,.dorsal,.tab,.eyebrow{font-family:'Archivo Black','Archivo',sans-serif;font-weight:900}
   .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--texto2)}
 
-  header{position:relative;background:var(--cabecera);overflow:hidden;padding:20px 18px 16px;border-bottom:1px solid var(--borde2)}
+  header{position:relative;background:var(--cabecera);padding:20px 18px 16px;border-bottom:1px solid var(--borde2)}
   header svg{position:absolute;inset:0;width:100%;height:100%;opacity:.2;color:var(--texto)}
   header .hd{position:relative}
   h1{font-size:clamp(30px,10vw,42px);line-height:.9;letter-spacing:-.02em;margin:6px 0 8px;text-transform:uppercase;color:var(--texto)}
@@ -68,6 +68,20 @@
     padding:8px 12px;border-radius:99px;cursor:pointer}
   .pill[aria-pressed="true"]{background:var(--acento);border-color:var(--acento);color:var(--sobreAcento);font-weight:700}
   .pill:focus-visible,.tab:focus-visible,.chip:focus-visible,.set:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+  .temaSel{position:absolute;top:14px;right:14px;z-index:30}
+  .temaBtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;padding:0;border-radius:50%;
+    border:1px solid var(--borde2);background:var(--panel);color:var(--texto);cursor:pointer}
+  .temaBtn:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  .temaMenu{position:absolute;top:45px;right:0;min-width:158px;display:flex;flex-direction:column;gap:2px;padding:6px;
+    background:var(--panel);border:1px solid var(--borde2);border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.38)}
+  .temaOpt{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border:0;border-radius:8px;
+    background:transparent;color:var(--texto);font:inherit;font-size:13.5px;text-align:left;cursor:pointer}
+  .temaOpt:hover{background:var(--fondo)}
+  .temaOpt:focus-visible{outline:2px solid var(--acento);outline-offset:-2px}
+  .temaOpt i{flex:none;width:12px;height:12px;border-radius:50%;border:1px solid var(--borde2)}
+  .temaOpt[aria-checked="true"]{font-weight:700}
+  .temaOpt[aria-checked="true"]::after{content:"✓";margin-left:auto;color:var(--acento);font-weight:700}
 
   nav{position:sticky;top:0;z-index:20;background:var(--fondo);border-bottom:1px solid var(--borde)}
   .tabs{display:flex;max-width:560px;margin:0 auto}
@@ -116,15 +130,6 @@
   .vid{margin-top:18px;border-top:1px dashed var(--borde);padding-top:14px}
   .yt{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:10px;
     background:var(--acento);color:var(--sobreAcento);border:0;font:inherit;font-weight:700;font-size:14.5px;text-decoration:none;cursor:pointer}
-  .frame{position:relative;padding-top:56.25%;margin-top:12px;border-radius:10px;overflow:hidden;background:#000}
-  .frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-  .pin{display:flex;gap:8px;margin-top:10px}
-  .pin input{flex:1;min-width:0;background:var(--fondo);border:1px solid var(--borde2);border-radius:9px;color:var(--texto);
-    padding:11px 12px;font:inherit;font-size:13.5px;-webkit-text-fill-color:var(--texto)}
-  .pin input::placeholder{color:var(--texto2);-webkit-text-fill-color:var(--texto2)}
-  .pin button{background:transparent;border:1px solid var(--borde2);border-radius:9px;color:var(--texto);font:inherit;
-    font-size:13.5px;padding:11px 14px;cursor:pointer}
-  .hint{font-size:11.5px;color:var(--texto2);margin:8px 0 0}
 
   .no{border:1px solid var(--avisoBorde);border-radius:14px;padding:14px;background:var(--avisoBg)}
   .no ul{margin:0;padding-left:0;list-style:none;columns:2;column-gap:14px}
@@ -180,11 +185,19 @@
       <button class="pill" type="button" id="m-no" aria-pressed="false">Sin partido</button>
     </div>
 
-    <div class="row" role="group" aria-label="Tema">
-      <span class="k">Tema</span>
-      <button class="pill tema" type="button" data-t="grafito" aria-pressed="true">Grafito</button>
-      <button class="pill tema" type="button" data-t="cal" aria-pressed="false">Claro</button>
-      <button class="pill tema" type="button" data-t="vino" aria-pressed="false">Vino</button>
+  </div>
+
+  <div class="temaSel" id="temaSel">
+    <button class="temaBtn" type="button" id="temaBtn" aria-haspopup="true" aria-expanded="false" aria-label="Cambiar tema">
+      <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>
+      </svg>
+    </button>
+    <div class="temaMenu" id="temaMenu" role="menu" aria-label="Tema" hidden>
+      <button class="temaOpt" type="button" role="menuitemradio" data-t="grafito" aria-checked="true"><i style="background:#7BE05C"></i>Grafito</button>
+      <button class="temaOpt" type="button" role="menuitemradio" data-t="cal" aria-checked="false"><i style="background:#1F4FD8"></i>Claro</button>
+      <button class="temaOpt" type="button" role="menuitemradio" data-t="vino" aria-checked="false"><i style="background:#F0B75A"></i>Vino</button>
     </div>
   </div>
 </header>
@@ -248,7 +261,7 @@
   </section>
 </main>
 
-<footer>Cada ficha abre la búsqueda en YouTube. Si un vídeo te sirve, pega el enlace y se queda incrustado durante la sesión.</footer>
+<footer>Cada ficha abre la búsqueda en YouTube.</footer>
 </div>
 
 <div class="marcador">
@@ -478,17 +491,10 @@
   ];
 
   var modo = "conPartido";
-  var pinned = {};
   var done = {d1:{}, d2:{}};
   var refDay = 4; // viernes
 
   function ytSearch(q){ return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q); }
-  function ytId(u){
-    var m = String(u).match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([A-Za-z0-9_-]{11})/);
-    if(m) return m[1];
-    m = String(u).trim().match(/^[A-Za-z0-9_-]{11}$/);
-    return m ? m[0] : null;
-  }
 
   function card(o){
     var variants = [{n:o.n,q:o.q,c:o.c,reps:o.reps}].concat((o.alts||[]).map(function(a){
@@ -510,28 +516,13 @@
         (o.sets ? '<span class="lbl">Series completadas</span><div class="sets"></div>' : '') +
         '<div class="vid">' +
           '<a class="yt" target="_blank" rel="noopener">▶ Ver cómo se hace</a>' +
-          '<div class="holder"></div>' +
-          '<div class="pin"><input type="url" inputmode="url" placeholder="Pega el enlace del vídeo"><button type="button">Fijar</button></div>' +
-          '<p class="hint">Al fijarlo se queda incrustado en esta ficha.</p>' +
         '</div>' +
       '</div>';
 
     var nameEl = el.querySelector(".nm b"), altEl = el.querySelector(".nm .alt"),
         repsEl = el.querySelector(".reps"), cuesEl = el.querySelector(".cues"),
-        ytEl = el.querySelector(".yt"), holder = el.querySelector(".holder"),
-        hint = el.querySelector(".hint"), input = el.querySelector(".pin input"),
-        pinBtn = el.querySelector(".pin button");
+        ytEl = el.querySelector(".yt");
 
-    function renderVideo(){
-      var id = pinned[variants[cur].q];
-      holder.innerHTML = "";
-      if(!id) return;
-      var f = document.createElement("div");
-      f.className = "frame";
-      f.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '" title="Vídeo" ' +
-        'allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
-      holder.appendChild(f);
-    }
     function paint(){
       var v = variants[cur];
       nameEl.textContent = v.n;
@@ -541,7 +532,6 @@
       cuesEl.innerHTML = "";
       v.c.forEach(function(t){ var li = document.createElement("li"); li.textContent = t; cuesEl.appendChild(li); });
       ytEl.href = ytSearch(v.q);
-      renderVideo();
       if(chipEls) chipEls.forEach(function(b,i){ b.setAttribute("aria-pressed", i === cur ? "true" : "false"); });
     }
 
@@ -587,16 +577,6 @@
         })(i);
       }
     }
-
-    pinBtn.addEventListener("click", function(){
-      var id = ytId(input.value);
-      if(!id){ hint.textContent = "Ese enlace no lleva a un vídeo de YouTube. Copia la URL completa."; return; }
-      pinned[variants[cur].q] = id;
-      input.value = "";
-      hint.textContent = "Vídeo fijado. Se mantiene mientras no recargues la página.";
-      renderVideo();
-    });
-    input.addEventListener("keydown", function(e){ if(e.key === "Enter") pinBtn.click(); });
 
     paint();
     return el;
@@ -696,12 +676,32 @@
   mNo.addEventListener("click", function(){ setModo("sinPartido"); });
 
   /* Temas */
-  var temaBtns = [].slice.call(document.querySelectorAll(".tema"));
-  temaBtns.forEach(function(b){
+  var temaSel = document.getElementById("temaSel"),
+      temaBtn = document.getElementById("temaBtn"),
+      temaMenu = document.getElementById("temaMenu"),
+      temaOpts = [].slice.call(document.querySelectorAll(".temaOpt"));
+
+  function abrirTema(open){
+    temaMenu.hidden = !open;
+    temaBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  temaBtn.addEventListener("click", function(e){
+    e.stopPropagation();
+    abrirTema(temaMenu.hidden);
+  });
+  temaOpts.forEach(function(b){
     b.addEventListener("click", function(){
       document.documentElement.setAttribute("data-tema", b.getAttribute("data-t"));
-      temaBtns.forEach(function(o){ o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+      temaOpts.forEach(function(o){ o.setAttribute("aria-checked", o === b ? "true" : "false"); });
+      abrirTema(false);
+      temaBtn.focus();
     });
+  });
+  document.addEventListener("click", function(e){
+    if(!temaMenu.hidden && !temaSel.contains(e.target)) abrirTema(false);
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && !temaMenu.hidden){ abrirTema(false); temaBtn.focus(); }
   });
 
   /* Pestañas */
