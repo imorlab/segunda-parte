@@ -80,6 +80,10 @@ que dejen las políticas RLS, que limitan cada fila a su dueño.
 python3 -m http.server 4173
 ```
 
+Al desplegar un cambio en cualquier `.js`, sube el `?v=N` de los `<script>` de
+`index.html`. GitHub Pages los sirve con `max-age=600` y sin eso el navegador
+seguiría usando la versión anterior hasta diez minutos.
+
 ## Vídeos
 
 Cada ficha abre una búsqueda filtrada en YouTube. No hay IDs fijados en el código a
