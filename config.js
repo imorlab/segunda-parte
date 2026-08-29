@@ -8,6 +8,6 @@
    navegador; al configurarlo, sincroniza entre dispositivos. */
 
 var CONFIG = {
-  SUPABASE_URL: "https://TU-PROYECTO.supabase.co",
-  SUPABASE_ANON_KEY: "TU-CLAVE-ANON"
+  SUPABASE_URL: "https://aadnukimvyhoinhbwqls.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhZG51a2ltdnlob2luaGJ3cWxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5ODY0NDMsImV4cCI6MjEwMzU2MjQ0M30.6TVIu-EWwyeZQuvF3nNO5lj-XDRInUGjNJVDBcndeAY"
 };
