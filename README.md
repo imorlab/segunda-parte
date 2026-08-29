@@ -65,8 +65,14 @@ Para que el historial te siga entre el móvil y el ordenador:
 2. Pega `sql/schema.sql` en el **SQL Editor** y ejecútalo. Crea las tablas, las políticas
    RLS y las vistas.
 3. En **Project Settings → API** copia la *URL* y la clave *anon* a `config.js`.
-4. En **Authentication → URL Configuration** añade `https://imorlab.github.io/segunda-parte/`
-   a *Redirect URLs*, para que el enlace de acceso vuelva a la app.
+4. En **Authentication → URL Configuration**:
+   - *Site URL* → `https://imorlab.github.io/segunda-parte/`
+   - *Redirect URLs* → `https://imorlab.github.io/segunda-parte/` y `http://localhost:4173/**`
+
+   Los dos, no solo el segundo. El *Site URL* es el destino de reserva: si el enlace de
+   acceso pide una dirección que no está en la lista blanca, Supabase lo manda ahí, y por
+   defecto vale `http://localhost:3000` — con lo que el enlace acaba en un
+   `ERR_CONNECTION_REFUSED` en lugar de en la app.
 5. Entra desde la pestaña **Progreso** con tu correo. Recibes un enlace, sin contraseña.
 
 La clave *anon* es pública por diseño y puede vivir en el repositorio: solo permite lo
