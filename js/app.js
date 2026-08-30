@@ -562,10 +562,20 @@
     temaBtn.setAttribute("aria-expanded", open ? "true" : "false");
   }
   temaBtn.addEventListener("click", function(e){ e.stopPropagation(); abrirTema(temaMenu.hidden); });
+  /* La barra del navegador se pinta con theme-color. Si se queda fija en
+     el gris del tema Grafito, con el tema Claro queda una franja oscura
+     sobre una pagina clara. */
+  var BARRA = {grafito:"#1A1F25", cal:"#E1E5E9", vino:"#2C0D15"};
+  function pintarBarra(t){
+    var m = document.querySelector('meta[name="theme-color"]');
+    if(m && BARRA[t]) m.setAttribute("content", BARRA[t]);
+  }
+
   temaOpts.forEach(function(b){
     b.addEventListener("click", function(){
       var t = b.getAttribute("data-t");
       document.documentElement.setAttribute("data-tema", t);
+      pintarBarra(t);
       try { localStorage.setItem("sp:tema", t); } catch(e){}
       temaOpts.forEach(function(o){ o.setAttribute("aria-checked", o === b ? "true" : "false"); });
       abrirTema(false);
@@ -583,6 +593,7 @@
     try { t = localStorage.getItem("sp:tema"); } catch(e){}
     if(!t) return;
     document.documentElement.setAttribute("data-tema", t);
+    pintarBarra(t);
     temaOpts.forEach(function(o){ o.setAttribute("aria-checked", o.getAttribute("data-t") === t ? "true" : "false"); });
   })();
 

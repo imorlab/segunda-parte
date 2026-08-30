@@ -51,7 +51,27 @@ js/juego.js       Reglas: XP, niveles, rachas, récords, logros. Funciones puras
 js/nube.js        Cache local + sincronización con Supabase
 js/app.js         Interfaz
 sql/schema.sql    Esquema de la base de datos
+favicon.svg       Origen del icono; el resto se genera a partir de él
+tools/            Generación y verificación de los iconos
 ```
+
+## Iconos
+
+El icono es el campo de fútbol sala de la cabecera. Va cuadrado y a sangre a
+propósito: iOS y Android aplican su propia máscara redondeada, y redondearlo en
+el origen deja esquinas dobles. A 16 y 32 px se usa una versión reducida a
+bordes y línea de medios, porque el círculo central y las áreas se emborronan.
+
+Para regenerarlos tras tocar `favicon.svg`:
+
+```bash
+bash tools/iconos.sh . && python3 tools/verificar-iconos.py favicon.ico icons/*.png
+```
+
+Merece la pena verificar: en este equipo ImageMagick no tiene delegado librsvg y
+rasteriza el SVG **sin los trazos**, produciendo cuadrados verdes vacíos que
+pasan cualquier comprobación de tamaño. El script rasteriza con QuickLook y el
+verificador cuenta píxeles de la marca.
 
 ## Datos
 
