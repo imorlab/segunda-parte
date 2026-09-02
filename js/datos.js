@@ -144,6 +144,21 @@ var EX = {
       {n:"Prensa a una pierna", q:"prensa de piernas una pierna unilateral tecnica", reps:"2 × 10 /lado", c:[
         "La opción más segura si las rodillas están sensibles."]}
     ]},
+  "12": {n:"Elevaciones laterales", q:"elevaciones laterales mancuernas tecnica correcta", c:[
+      "Sube hasta la altura del hombro y para. Más arriba trabaja el trapecio.",
+      "Codo ligeramente flexionado y fijo: guía con el codo, no con la mano.",
+      "Peso ligero de verdad. Si necesitas impulso de cadera, has cogido demasiado."],
+    alts:[
+      {n:"Elevaciones laterales en polea", q:"elevacion lateral en polea a una mano tecnica", c:[
+        "A una mano, polea baja cruzada por delante del cuerpo.",
+        "Tensión constante en todo el recorrido, también abajo."]},
+      {n:"Elevaciones laterales en máquina", q:"maquina elevaciones laterales tecnica", c:[
+        "La máquina te quita el impulso: no puedes hacer trampa.",
+        "Buena para las últimas series, cuando ya llegas cansado."]},
+      {n:"Face pull", q:"face pull tecnica correcta hombro posterior", c:[
+        "Cambia el objetivo al deltoides posterior en vez del lateral.",
+        "Cuerda a la altura de la cara, codos altos y abiertos."]}
+    ]},
   "11": {n:"Cardio: intervalos suaves", q:"intervalos bici estatica principiantes rutina", reps:"8–10 min", c:[
       "Bici o remo: 40 s a ritmo fuerte / 80 s suave, 4–5 rondas.",
       "\"Fuerte\" es no poder mantener una conversación, no reventarte.",
@@ -163,7 +178,8 @@ var EX = {
 var PLAN = {
   conPartido: {
     d1: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
-         {id:"04",sets:3,reps:"3 × 8–12"},{id:"05",sets:2,reps:"2 × 10–12"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
+         {id:"04",sets:3,reps:"3 × 8–12"},{id:"05",sets:2,reps:"2 × 10–12"},
+         {id:"12",sets:3,reps:"3 × 12–15"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
     d2: [{id:"06",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
          {id:"02",sets:3,reps:"3 × 8–12",nota:"Variante plana o en máquina"},
          {id:"03",sets:2,reps:"2 × 10–12"},{id:"07",sets:2,reps:"2 × 30–40 s"},{id:"08",sets:2,reps:"2 × 10 /lado"}],
@@ -180,7 +196,8 @@ var PLAN = {
   sinPartido: {
     d1: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
          {id:"04",sets:3,reps:"3 × 10–12",nota:"Un poco más de repeticiones, sin partido que respetar"},
-         {id:"05",sets:2,reps:"2 × 10–12"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
+         {id:"05",sets:2,reps:"2 × 10–12"},
+         {id:"12",sets:3,reps:"3 × 12–15"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
     d2: [{id:"06",sets:3,reps:"3 × 8–10"},{id:"09",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
          {id:"10",sets:2,reps:"2 × 8 /lado"},{id:"02",sets:2,reps:"2 × 8–12",nota:"Variante plana o en máquina"},
          {id:"03",sets:2,reps:"2 × 10–12"},{id:"08",sets:2,reps:"2 × 10 /lado"},{id:"11",sets:1,reps:"8–10 min"}],
