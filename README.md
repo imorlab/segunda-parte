@@ -17,6 +17,10 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
   - *Sin partido*: entra bisagra de cadera, trabajo unilateral y 8–10 min de cardio.
 - **Interruptor de partido** en la cabecera: recalcula ejercicios, avisos y la semana.
 - **Sustitutos** por ejercicio (3 por ficha) con sus propias claves técnicas y su vídeo.
+  La elección se recuerda: si tu gimnasio no tiene barra hexagonal, la eliges una vez.
+  Cada serie guarda el movimiento que hiciste de verdad, y las marcas se agrupan por
+  movimiento, no por hueco del plan — un rack pull mueve mucho más peso que un trap
+  bar por tener menos recorrido, y compararlos daría un récord falso.
 - **Registro por serie**: peso y repeticiones, prerrellenados con lo de la vez anterior.
 - **Cronómetro** que arranca solo al marcar una serie: 2 min en los básicos pesados
   (trap bar, press inclinado, prensa, press de hombros y RDL) y 90 s en el resto.

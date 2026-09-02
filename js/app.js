@@ -13,6 +13,19 @@
   function restDe(id){ return BASICO[id] ? 120 : 90; }
 
   function $(id){ return document.getElementById(id); }
+
+  /* Sustituto elegido en cada ficha. Se guarda porque no es un capricho
+     del dia: si tu gimnasio no tiene barra hexagonal, no la va a tener la
+     semana que viene. */
+  function claveVar(o){ return o.day + ":" + o.badge + ":" + o.slot; }
+  function leerVariantes(){
+    try { return JSON.parse(localStorage.getItem("sp:variantes") || "{}"); } catch(e){ return {}; }
+  }
+  function guardarVariante(o, i){
+    var v = leerVariantes();
+    if(i) v[claveVar(o)] = i; else delete v[claveVar(o)];
+    try { localStorage.setItem("sp:variantes", JSON.stringify(v)); } catch(e){}
+  }
   function ytSearch(q){ return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q); }
   function num(v){
     if(v == null || v === "") return null;
@@ -47,14 +60,26 @@
 
   /* Ultimo peso y reps de ese ejercicio, para no teclear lo mismo cada
      vez: si repites carga basta con pulsar el visto. */
-  function ultimaDe(ejercicio, n){
+  /* Ultimo peso y reps del mismo movimiento. Filtra por variante: tras
+     cambiar de trap bar a hip thrust, prerrellenar con la carga anterior
+     seria una sugerencia peligrosa. */
+  function ultimaDe(ejercicio, variante, n){
     var todas = Nube.get().series
-      .filter(function(x){ return x.ejercicio === ejercicio && x.peso != null; })
+      .filter(function(x){
+        return x.ejercicio === ejercicio && x.peso != null && (x.variante || null) === (variante || null);
+      })
       .sort(function(a,b){ return String(b.hecha_en).localeCompare(String(a.hecha_en)); });
     return todas.filter(function(x){ return x.n_serie === n; })[0] || todas[0] || null;
   }
 
   /* ------------------------------------------------------------ recompensas */
+
+  /* El nombre que se ensena: el del sustituto si se uso, y si no el del
+     ejercicio principal. Las series antiguas no llevan variante. */
+  function nombreMarca(r){
+    if(r.variante) return r.variante;
+    return EX[r.ejercicio] ? EX[r.ejercicio].n : r.ejercicio;
+  }
 
   function foto(){
     var st = Nube.get(), x = Juego.xp(st);
@@ -94,15 +119,15 @@
   /* Compara el antes y el despues de marcar una serie y celebra lo que
      haya cambiado. El orden importa: primero los logros, que dan XP y
      pueden ser los que hagan subir de nivel. */
-  function celebrar(antes, nombreEj){
+  function celebrar(antes){
     var nuevosLogros = otorgarLogros();
     var d = foto();
 
-    Object.keys(d.records).forEach(function(ej){
-      var a = antes.records[ej];
-      if(a && d.records[ej].e1rm > a.e1rm){
-        var r = d.records[ej];
-        brindis("🏆", "Récord en " + (EX[ej] ? EX[ej].n : ej),
+    Object.keys(d.records).forEach(function(k){
+      var a = antes.records[k];
+      if(a && d.records[k].e1rm > a.e1rm){
+        var r = d.records[k];
+        brindis("🏆", "Récord en " + nombreMarca(r),
                 kg(r.peso) + " kg × " + r.reps + "  ·  +100 XP");
       }
     });
@@ -122,7 +147,9 @@
     var variants = [{n:o.n,q:o.q,c:o.c,reps:o.reps}].concat((o.alts||[]).map(function(a){
       return {n:a.n,q:a.q,c:a.c,reps:a.reps||o.reps};
     }));
-    var cur = 0, chipEls = null;
+    var cur = leerVariantes()[claveVar(o)] || 0;
+    if(cur >= variants.length) cur = 0;
+    var chipEls = null;
 
     var el = document.createElement("article");
     el.className = "ex";
@@ -163,7 +190,12 @@
         var b = document.createElement("button");
         b.className = "chip"; b.type = "button";
         b.textContent = i === 0 ? "Principal" : v.n;
-        b.addEventListener("click", function(){ cur = i; paint(); });
+        b.addEventListener("click", function(){
+          cur = i;
+          guardarVariante(o, i);
+          paint();
+          repintarFichas(el, o);
+        });
         chips.appendChild(b);
         return b;
       });
@@ -176,6 +208,8 @@
       el.classList.toggle("open", open);
       head.setAttribute("aria-expanded", open ? "true" : "false");
     });
+
+    o.variante = function(){ return variants[cur].n; };
 
     if(o.sets){
       var box = el.querySelector(".sets");
@@ -218,10 +252,10 @@
         var ses = sesionDelDia(o.day, true);
         Nube.marcarSerie(ses, {
           ejercicio:o.badge, slot:o.slot, n_serie:i,
-          variante: null, peso:num(ikg.value), reps:num(irp.value)
+          variante: o.variante(), peso:num(ikg.value), reps:num(irp.value)
         });
         cerrarSiProcede(o.day);
-        celebrar(antes, o.n);
+        celebrar(antes);
         arrancarDescanso(o.rest);
       }
       repintarFichas(el, o);
@@ -251,8 +285,9 @@
       } else {
         ok.setAttribute("aria-pressed", "false");
         fila.classList.remove("hecha");
+        if(fila.classList.contains("sugerida")){ ikg.value = ""; irp.value = ""; fila.classList.remove("sugerida"); }
         if(!ikg.value && !irp.value){
-          var u = ultimaDe(o.badge, n);
+          var u = ultimaDe(o.badge, o.variante ? o.variante() : null, n);
           if(u){
             ikg.value = u.peso != null ? String(u.peso).replace(".", ",") : "";
             irp.value = u.reps != null ? String(u.reps) : "";
@@ -462,7 +497,9 @@
     host.appendChild(gl);
 
     /* Records */
-    var claves = Object.keys(recs).sort();
+    var claves = Object.keys(recs).sort(function(a,b){
+      return nombreMarca(recs[a]).localeCompare(nombreMarca(recs[b]), "es");
+    });
     var h3 = document.createElement("h2");
     h3.textContent = "Tus marcas";
     host.appendChild(h3);
@@ -479,7 +516,7 @@
         var d = document.createElement("div");
         d.className = "marca";
         d.innerHTML = '<b></b><span class="mv"></span><i></i>';
-        d.querySelector("b").textContent = EX[k] ? EX[k].n : k;
+        d.querySelector("b").textContent = nombreMarca(m);
         d.querySelector(".mv").textContent = kg(m.peso) + " kg × " + m.reps;
         d.querySelector("i").textContent = "1RM est. " + kg(m.e1rm) + " kg";
         tb.appendChild(d);

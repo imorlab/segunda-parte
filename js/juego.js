@@ -45,13 +45,20 @@ var Juego = (function(){
     if(s.peso == null || s.reps == null || s.reps <= 0) return null;
     return Math.round(s.peso * (1 + s.reps / 30) * 100) / 100;
   }
+  /* Las marcas se agrupan por movimiento real, no por hueco del plan: un
+     rack pull mueve mucho mas peso que un trap bar por tener menos
+     recorrido, y compararlos daria un record falso imposible de batir.
+     Las series antiguas no llevan variante: son el ejercicio principal. */
+  function claveMarca(s){ return s.ejercicio + "|" + (s.variante || ""); }
+
   function records(series){
     var r = {};
     series.forEach(function(s){
       var v = s.e1rm != null ? Number(s.e1rm) : e1rm(s);
       if(v == null) return;
-      var a = r[s.ejercicio];
-      if(!a || v > a.e1rm) r[s.ejercicio] = {e1rm:v, peso:s.peso, reps:s.reps, fecha:s.hecha_en};
+      var k = claveMarca(s), a = r[k];
+      if(!a || v > a.e1rm) r[k] = {e1rm:v, peso:s.peso, reps:s.reps, fecha:s.hecha_en,
+                                   ejercicio:s.ejercicio, variante:s.variante || null};
     });
     return r;
   }
@@ -65,8 +72,9 @@ var Juego = (function(){
       .forEach(function(s){
         var v = s.e1rm != null ? Number(s.e1rm) : e1rm(s);
         if(v == null) return;
-        if(mejor[s.ejercicio] == null){ mejor[s.ejercicio] = v; return; }
-        if(v > mejor[s.ejercicio]){ mejor[s.ejercicio] = v; n++; }
+        var k = claveMarca(s);
+        if(mejor[k] == null){ mejor[k] = v; return; }
+        if(v > mejor[k]){ mejor[k] = v; n++; }
       });
     return n;
   }
@@ -198,6 +206,7 @@ var Juego = (function(){
     semanaIdx: semanaIdx,
     hoyISO: hoyISO,
     e1rm: e1rm,
+    claveMarca: claveMarca,
     records: records,
     recordsBatidos: recordsBatidos,
     racha: racha,
