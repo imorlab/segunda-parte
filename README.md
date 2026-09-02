@@ -11,19 +11,19 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
 
 ## Qué hace
 
-- **Día 1** — fuerza completa (trap bar, prensa, empujes y tirones), RIR 2–3.
+- **Día 1** — fuerza completa (peso muerto, prensa, empujes y tirones), RIR 2–3.
 - **Día 2** — cambia según la semana:
   - *Hay partido*: tren superior y core. Nada de piernas pesadas antes de jugar.
   - *Sin partido*: entra bisagra de cadera, trabajo unilateral y 8–10 min de cardio.
 - **Interruptor de partido** en la cabecera: recalcula ejercicios, avisos y la semana.
 - **Sustitutos** por ejercicio (3 por ficha) con sus propias claves técnicas y su vídeo.
-  La elección se recuerda: si tu gimnasio no tiene barra hexagonal, la eliges una vez.
+  La elección se recuerda por nombre, no por posición: la eliges una vez.
   Cada serie guarda el movimiento que hiciste de verdad, y las marcas se agrupan por
   movimiento, no por hueco del plan — un rack pull mueve mucho más peso que un trap
   bar por tener menos recorrido, y compararlos daría un récord falso.
 - **Registro por serie**: peso y repeticiones, prerrellenados con lo de la vez anterior.
 - **Cronómetro** que arranca solo al marcar una serie: 2 min en los básicos pesados
-  (trap bar, press inclinado, prensa, press de hombros y RDL) y 90 s en el resto.
+  (peso muerto, press inclinado, prensa, press de hombros y RDL) y 90 s en el resto.
   Presets manuales de 1:00 / 1:30 / 2:00.
 - **Semana** que se recoloca según el día de referencia.
 - **Tres temas**: Grafito, Claro y Vino, en el icono de la esquina superior derecha.

@@ -2,20 +2,21 @@
    Solo contenido. Sin logica ni DOM. */
 
 var EX = {
-  "01": {n:"Trap Bar Deadlift", q:"trap bar deadlift tecnica correcta", c:[
-      "Barra a media espinilla, tibias casi verticales, pecho alto.",
+  "01": {n:"Peso muerto con mancuernas desde bloques", q:"peso muerto con mancuernas tecnica", c:[
+      "Mancuernas a los lados, sobre discos o steps para acortar el recorrido.",
       "Empuja el suelo con los pies en vez de tirar con la espalda.",
       "Si la lumbar se redondea, la serie ha terminado."],
     alts:[
-      {n:"Peso muerto con mancuernas desde bloques", q:"peso muerto con mancuernas tecnica", c:[
-        "Mancuernas a los lados, sobre discos para acortar el recorrido.",
-        "Misma idea: cadera atrás, espalda neutra."]},
+      {n:"Rack pull", q:"rack pull tecnica peso muerto parcial", c:[
+        "Barra a la altura de la rodilla en el rack.",
+        "Menos rango, misma fuerza de espalda.",
+        "Para cuando te quedes corto de mancuernas."]},
       {n:"Hip thrust en máquina", q:"hip thrust maquina tecnica gluteo", c:[
         "Cero carga en la columna, todo glúteo e isquio.",
         "Aprieta arriba 1 s, sin arquear la lumbar."]},
-      {n:"Rack pull", q:"rack pull tecnica peso muerto parcial", c:[
-        "Barra a la altura de la rodilla en el rack.",
-        "Menos rango, misma fuerza de espalda."]}
+      {n:"Trap Bar Deadlift", q:"trap bar deadlift tecnica correcta", c:[
+        "Barra a media espinilla, tibias casi verticales, pecho alto.",
+        "Solo si acabas en un gimnasio que tenga barra hexagonal."]}
     ]},
   "02": {n:"Press inclinado con mancuernas", q:"press inclinado con mancuernas tecnica", c:[
       "Banco a 30°, no más: por encima trabaja el hombro, no el pecho.",

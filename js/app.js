@@ -15,15 +15,19 @@
   function $(id){ return document.getElementById(id); }
 
   /* Sustituto elegido en cada ficha. Se guarda porque no es un capricho
-     del dia: si tu gimnasio no tiene barra hexagonal, no la va a tener la
-     semana que viene. */
+     del dia: si tu gimnasio no tiene una barra, no la va a tener la semana
+     que viene.
+
+     Se guarda el nombre, no la posicion en la lista: al reordenar los
+     sustitutos una posicion guardada pasaria a apuntar a otro ejercicio,
+     y te encontrarias haciendo otra cosa sin haber tocado nada. */
   function claveVar(o){ return o.day + ":" + o.badge + ":" + o.slot; }
   function leerVariantes(){
     try { return JSON.parse(localStorage.getItem("sp:variantes") || "{}"); } catch(e){ return {}; }
   }
-  function guardarVariante(o, i){
+  function guardarVariante(o, nombre){
     var v = leerVariantes();
-    if(i) v[claveVar(o)] = i; else delete v[claveVar(o)];
+    if(nombre) v[claveVar(o)] = nombre; else delete v[claveVar(o)];
     try { localStorage.setItem("sp:variantes", JSON.stringify(v)); } catch(e){}
   }
   function ytSearch(q){ return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q); }
@@ -147,8 +151,8 @@
     var variants = [{n:o.n,q:o.q,c:o.c,reps:o.reps}].concat((o.alts||[]).map(function(a){
       return {n:a.n,q:a.q,c:a.c,reps:a.reps||o.reps};
     }));
-    var cur = leerVariantes()[claveVar(o)] || 0;
-    if(cur >= variants.length) cur = 0;
+    var cur = 0, guardada = leerVariantes()[claveVar(o)];
+    variants.forEach(function(v, i){ if(v.n === guardada) cur = i; });
     var chipEls = null;
 
     var el = document.createElement("article");
@@ -192,7 +196,7 @@
         b.textContent = i === 0 ? "Principal" : v.n;
         b.addEventListener("click", function(){
           cur = i;
-          guardarVariante(o, i);
+          guardarVariante(o, i ? v.n : null);
           paint();
           repintarFichas(el, o);
         });
@@ -357,7 +361,7 @@
     var d1 = partido ? (refDay - 3 + 7) % 7 : refDay;
     for(var i = 0; i < 7; i++){
       var cls = "", title = "Descanso", sub = "Nada. El descanso es parte del plan.";
-      if(i === d1){ cls = "hot"; title = "Día 1 — Fuerza completa"; sub = "Trap bar, prensa, empujes y tirones. RIR 2–3."; }
+      if(i === d1){ cls = "hot"; title = "Día 1 — Fuerza completa"; sub = "Peso muerto, prensa, empujes y tirones. RIR 2–3."; }
       else if(i === d2){
         cls = "ball";
         title = partido ? "Día 2 + Fútbol sala" : "Día 2 — Piernas y cardio";
