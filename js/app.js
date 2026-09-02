@@ -396,6 +396,8 @@
 
     buildDay("list-d1", p.d1, "d1");
     buildDay("list-d2", p.d2, "d2");
+    buildSimple("list-prev-d1", PREV);
+    buildSimple("list-prev-d2", PREV);
     if(partido) buildSimple("list-cal", CAL);
     buildSimple("list-mov", MOV);
     buildPicker(); week(); marcador(); hud(); progreso();

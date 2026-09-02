@@ -204,6 +204,23 @@ var CAL = [
   {n:"Aceleraciones progresivas", reps:"2–3 × 15 m", q:"aceleraciones progresivas calentamiento futbol sala", c:["La primera al 60%, la última al 85%. Nunca al 100% en frío."]}
 ];
 
+/* Calentamiento de gimnasio. Distinto del de partido (CAL): aqui no se
+   trata de estar listo para esprintar, sino de no entrar frio a la primera
+   serie pesada. Las series de aproximacion son la parte que de verdad
+   importa y la que todo el mundo se salta. */
+var PREV = [
+  {n:"Bici o remo muy suave", reps:"3–4 min", q:"calentamiento bici estatica antes de pesas", c:[
+    "Ritmo de conversación, sin llegar a sudar.",
+    "Solo para subir la temperatura. Esto no es el entrenamiento."]},
+  {n:"Bisagra de cadera y círculos de hombro", reps:"1–2 min", q:"movilidad dinamica antes de entrenar fuerza", c:[
+    "Diez bisagras sin peso y diez círculos de brazos hacia atrás.",
+    "Despierta los patrones que vas a cargar en un momento."]},
+  {n:"Series de aproximación", reps:"2–3 series", q:"series de aproximacion calentamiento fuerza", c:[
+    "50% del peso de trabajo × 5, luego 75% × 3, luego 90% × 1.",
+    "Descansa 30–60 s entre ellas. No cuentan como series de trabajo.",
+    "Solo en el primer ejercicio del día; al resto entras directo."]}
+];
+
 var MOV = [
   {n:"Movilidad de tobillo en pared", reps:"2 × 10 /lado", q:"movilidad dorsiflexion tobillo pared ejercicio", c:["La rodilla toca la pared con el talón clavado.","Poco tobillo = rodilla y cadera pagando la factura."]},
   {n:"Elevación de talones excéntrica", reps:"2 × 12", q:"elevacion de talones excentrica gemelo soleo", c:["Sube con dos piernas, baja despacio con una.","Protege el tendón de Aquiles."]},

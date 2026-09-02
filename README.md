@@ -21,6 +21,9 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
   Cada serie guarda el movimiento que hiciste de verdad, y las marcas se agrupan por
   movimiento, no por hueco del plan — un rack pull mueve mucho más peso que un trap
   bar por tener menos recorrido, y compararlos daría un récord falso.
+- **Calentamiento de gimnasio** en los dos días: unos minutos suaves, movilidad rápida y
+  series de aproximación en el primer ejercicio. No confundir con el calentamiento
+  *antes del partido*, que está en el Día 2 y es para la pista.
 - **Registro por serie**: peso y repeticiones, prerrellenados con lo de la vez anterior.
 - **Cronómetro** que arranca solo al marcar una serie: 2 min en los básicos pesados
   (peso muerto, press inclinado, prensa, press de hombros y RDL) y 90 s en el resto.
@@ -50,7 +53,7 @@ se miden en 1RM estimado (fórmula de Epley), que permite comparar 60 kg × 8 co
 ```
 index.html        Marcado y estilos
 config.js         Claves de Supabase (opcional)
-js/datos.js       Ejercicios y rutinas. Solo contenido
+js/datos.js       Ejercicios, rutinas, calentamientos y movilidad. Solo contenido
 js/juego.js       Reglas: XP, niveles, rachas, récords, logros. Funciones puras
 js/nube.js        Cache local + sincronización con Supabase
 js/app.js         Interfaz
