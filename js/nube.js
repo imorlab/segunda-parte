@@ -112,12 +112,41 @@ var Nube = (function(){
     });
   }
 
-  /* Vaciar la cola antes de descargar: si no, lo local sin subir se
-     perderia al reemplazar el cache con lo que hay en el servidor. */
+  /* Lo entrenado antes de entrar con la cuenta se guardo con usuario
+     "local", que no es un uuid y Supabase rechaza. Al iniciar sesion se
+     le pone el id real y se reencola: sin esto se quedaba atascado en la
+     cola para siempre y la descarga lo borraba de la vista. */
+  function adoptar(){
+    if(!sesionAuth) return 0;
+    var u = sesionAuth.user.id, n = 0;
+    [["sesiones","sesion"], ["series","serie"], ["logros","logro"]].forEach(function(par){
+      estado[par[0]].forEach(function(f){
+        if(f.usuario !== u){ f.usuario = u; encolar(par[1], f); n++; }
+      });
+    });
+    var c = leer(COLA, []);
+    c.forEach(function(it){ if(it.fila) it.fila.usuario = u; });
+    escribir(COLA, c);
+    if(n) guardarCache();
+    return n;
+  }
+
+  /* Con la cola vacia el servidor manda: reemplazar deja ver los borrados
+     hechos desde otro dispositivo. Si queda algo por subir se funde, para
+     no perder de vista lo que todavia no ha llegado. */
+  function fundir(locales, remotos, clave){
+    var vistos = {};
+    remotos.forEach(function(f){ vistos[f[clave]] = true; });
+    return remotos.concat(locales.filter(function(f){ return !vistos[f[clave]]; }));
+  }
+
   function sincronizar(){
     if(!conectado()) return Promise.resolve(estado);
     var uid = sesionAuth.user.id;
-    return vaciarCola().then(function(){
+    adoptar();
+    var pendientes = 0;
+    return vaciarCola().then(function(n){
+      pendientes = n || 0;
       return Promise.all([
         cli.from("sesion").select("*").eq("usuario", uid).order("fecha", {ascending:true}),
         cli.from("serie").select("*").eq("usuario", uid).order("hecha_en", {ascending:true}),
@@ -125,7 +154,12 @@ var Nube = (function(){
       ]);
     }).then(function(r){
       if(r[0].error || r[1].error || r[2].error) return estado;
-      estado = {sesiones:r[0].data || [], series:r[1].data || [], logros:r[2].data || []};
+      var ses = r[0].data || [], ser = r[1].data || [], log = r[2].data || [];
+      estado = pendientes ? {
+        sesiones: fundir(estado.sesiones, ses, "id"),
+        series:   fundir(estado.series,   ser, "id"),
+        logros:   fundir(estado.logros,   log, "clave")
+      } : {sesiones:ses, series:ser, logros:log};
       guardarCache();
       return estado;
     }).catch(function(){ return estado; });
@@ -204,7 +238,7 @@ var Nube = (function(){
     alCambiar:alCambiar,
     get: function(){ return estado; },
     sesionDe:sesionDe, marcarSerie:marcarSerie, desmarcarSerie:desmarcarSerie,
-    cerrarSesion:cerrarSesion, guardarLogro:guardarLogro,
+    cerrarSesion:cerrarSesion, guardarLogro:guardarLogro, guardar:guardarCache,
     pendientes: function(){ return leer(COLA, []).length; }
   };
 })();

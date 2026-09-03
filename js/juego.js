@@ -7,6 +7,11 @@ var Juego = (function(){
   "use strict";
 
   var META_SEMANAL = 2;          // sesiones por semana para no romper racha
+  /* Una sesion cuenta con el 70% de las series previstas. Exigir el 100%
+     hacia que saltarte un ejercicio porque la maquina estaba ocupada te
+     costase la racha entera, y que anadir ejercicios al plan invalidase
+     sesiones ya hechas. */
+  var COMPLETA_PCT = 0.7;
   var XP_SERIE  = 10;
   var XP_SESION = 50;
   var XP_RECORD = 100;
@@ -36,6 +41,13 @@ var Juego = (function(){
     var d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
   }
+
+  /* Series necesarias para dar la sesion por hecha. */
+  function minimoSesion(plan){
+    if(!plan) return 1;
+    return Math.max(1, Math.ceil(plan * COMPLETA_PCT));
+  }
+  function sesionCompleta(hechas, plan){ return hechas >= minimoSesion(plan); }
 
   /* ------------------------------------------------------------ records */
 
@@ -201,6 +213,9 @@ var Juego = (function(){
 
   return {
     META_SEMANAL: META_SEMANAL,
+    COMPLETA_PCT: COMPLETA_PCT,
+    minimoSesion: minimoSesion,
+    sesionCompleta: sesionCompleta,
     NIVELES: NIVELES,
     LOGROS: LOGROS,
     semanaIdx: semanaIdx,

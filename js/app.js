@@ -76,6 +76,37 @@
     return todas.filter(function(x){ return x.n_serie === n; })[0] || todas[0] || null;
   }
 
+  /* Series de la ultima sesion en que hiciste este mismo movimiento, para
+     tener delante contra que estas compitiendo hoy. */
+  function ultimaSesionDe(ejercicio, variante, excluir){
+    var previas = Nube.get().series.filter(function(x){
+      return x.ejercicio === ejercicio &&
+             (x.variante || null) === (variante || null) &&
+             x.sesion !== excluir && x.peso != null;
+    });
+    if(!previas.length) return null;
+    var ult = previas.reduce(function(a, b){
+      return String(a.hecha_en) > String(b.hecha_en) ? a : b;
+    });
+    /* Una serie por numero: la base lo garantiza con una clave unica, pero
+       un cache viejo o a medio migrar podria traer repetidos y la linea
+       se haria interminable. */
+    var porNumero = {};
+    previas.filter(function(x){ return x.sesion === ult.sesion; })
+           .forEach(function(x){ porNumero[x.n_serie] = x; });
+    return {
+      fecha: ult.hecha_en,
+      series: Object.keys(porNumero).map(Number).sort(function(a, b){ return a - b; })
+                    .map(function(k){ return porNumero[k]; })
+    };
+  }
+
+  var MES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  function dia_mes(iso){
+    var d = new Date(iso);
+    return isNaN(d) ? "" : d.getDate() + " " + MES[d.getMonth()];
+  }
+
   /* ------------------------------------------------------------ recompensas */
 
   /* El nombre que se ensena: el del sustituto si se uso, y si no el del
@@ -166,7 +197,7 @@
       '<div class="body" hidden>' +
         (variants.length > 1 ? '<span class="lbl">Cambiar por</span><div class="chips"></div>' : '') +
         '<ul class="cues"></ul>' +
-        (o.sets ? '<span class="lbl">Series</span><div class="sets"></div>' : '') +
+        (o.sets ? '<span class="lbl">Series</span><div class="ultima" hidden></div><div class="sets"></div>' : '') +
         '<div class="vid">' +
           '<a class="yt" target="_blank" rel="noopener">▶ Ver cómo se hace</a>' +
         '</div>' +
@@ -275,6 +306,7 @@
   /* Refleja en la ficha lo que ya esta guardado: valores, vistos y si el
      ejercicio esta terminado. Se llama al construir y tras cada cambio. */
   function repintarFichas(el, o){
+    pintarUltima(el, o);
     var filas = [].slice.call(el.querySelectorAll(".serie"));
     filas.forEach(function(fila, idx){
       var n = idx + 1;
@@ -306,18 +338,48 @@
     el.classList.toggle("done", todas);
   }
 
-  /* Una sesion cuenta como completada cuando estan todas las series del
-     plan. Si luego desmarcas alguna, deja de contar: la racha mide lo
-     que has hecho, no lo que llegaste a tocar. */
+  /* Marcas del dia anterior con este movimiento, encima de las series.
+     Prerrellenar los campos ya ayuda, pero no deja ver la sesion entera:
+     con esto sabes si la vez pasada aguantaste el peso hasta la ultima. */
+  function pintarUltima(el, o){
+    var caja = el.querySelector(".ultima");
+    if(!caja) return;
+    var ses = sesionDelDia(o.day, false);
+    var u = ultimaSesionDe(o.badge, o.variante ? o.variante() : null, ses ? ses.id : null);
+    if(!u || !u.series.length){ caja.hidden = true; caja.innerHTML = ""; return; }
+    caja.hidden = false;
+    caja.innerHTML = '<span class="uf"></span><span class="us"></span>';
+    caja.querySelector(".uf").textContent = "Última vez · " + dia_mes(u.fecha);
+    caja.querySelector(".us").textContent = u.series.map(function(x){
+      return kg(x.peso) + "×" + (x.reps != null ? x.reps : "?");
+    }).join("   ");
+  }
+
+  /* Una sesion cuenta al llegar al 70% de las series previstas. Se mide
+     contra el plan guardado en la propia sesion, no contra el de hoy:
+     si no, anadir un ejercicio al plan invalidaria sesiones ya hechas. */
   function cerrarSiProcede(dia){
     var s = sesionDelDia(dia, false);
     if(!s) return;
-    var hechas = seriesDelDia(dia).length, plan = totalSeries(dia);
-    var debe = hechas >= plan;
+    var hechas = seriesDelDia(dia).length;
+    var debe = Juego.sesionCompleta(hechas, s.series_plan || totalSeries(dia));
     if(s.completada !== debe){
       Nube.cerrarSesion(s, debe);
       if(debe) brindis("✅", "Sesión completada", hechas + " series  ·  +50 XP");
     }
+  }
+
+  /* Repasa las sesiones guardadas por si la regla cambio despues de
+     hacerlas, o por si el plan crecio y las dejo fuera injustamente. */
+  function revisarSesiones(){
+    var st = Nube.get(), cuenta = {}, tocadas = 0;
+    st.series.forEach(function(x){ cuenta[x.sesion] = (cuenta[x.sesion] || 0) + 1; });
+    st.sesiones.forEach(function(s){
+      var debe = Juego.sesionCompleta(cuenta[s.id] || 0, s.series_plan || 0);
+      if(s.completada !== debe){ s.completada = debe; tocadas++;
+        Nube.cerrarSesion(s, debe); }
+    });
+    return tocadas;
   }
 
   /* ------------------------------------------------------------- construir */
@@ -690,6 +752,7 @@
   /* -------------------------------------------------------------- arranque */
 
   Nube.alCambiar(function(){ hud(); marcador(); });
+  revisarSesiones();
   render();
-  Nube.init().then(function(){ render(); });
+  Nube.init().then(function(){ revisarSesiones(); render(); });
 })();

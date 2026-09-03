@@ -24,7 +24,9 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
 - **Calentamiento de gimnasio** en los dos días: unos minutos suaves, movilidad rápida y
   series de aproximación en el primer ejercicio. No confundir con el calentamiento
   *antes del partido*, que está en el Día 2 y es para la pista.
-- **Registro por serie**: peso y repeticiones, prerrellenados con lo de la vez anterior.
+- **Registro por serie**: peso y repeticiones, prerrellenados con lo de la vez anterior,
+  y encima la línea **Última vez** con la sesión anterior completa de ese mismo movimiento,
+  para ver si aguantaste el peso hasta la última serie o se te cayó.
 - **Cronómetro** que arranca solo al marcar una serie: 2 min en los básicos pesados
   (peso muerto, press inclinado, prensa, press de hombros y RDL) y 90 s en el resto.
   Presets manuales de 1:00 / 1:30 / 2:00.
@@ -42,6 +44,10 @@ así que el marcador no puede desincronizarse.
 | Sesión completa            | 50   |
 | Batir tu marca (récord)    | 100  |
 | Logro desbloqueado         | 75   |
+
+Una sesión cuenta al llegar al **70%** de sus series. Exigir el 100% hacía que saltarte
+un ejercicio porque la máquina estaba ocupada te costara la racha, y que añadir ejercicios
+al plan invalidara sesiones ya hechas.
 
 Ocho niveles, de *Suplente* a *Leyenda*. La **racha** cuenta semanas seguidas con las
 dos sesiones hechas; la semana en curso no la rompe hasta que termina. Los **récords**

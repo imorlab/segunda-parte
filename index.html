@@ -14,9 +14,9 @@
      16, 32 y 48 px para los que no. El color se mantiene al dia con el
      tema elegido desde app.js. -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" href="favicon.svg?v=8" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=8">
-<link rel="manifest" href="site.webmanifest?v=8">
+<link rel="icon" href="favicon.svg?v=10" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=10">
+<link rel="manifest" href="site.webmanifest?v=10">
 <meta name="theme-color" content="#1A1F25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,6 +146,9 @@
   .cues li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:1.5px;background:var(--acento)}
 
   .sets{display:flex;flex-wrap:wrap;gap:8px}
+  .ultima{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:-2px 0 10px}
+  .ultima .uf{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--texto2)}
+  .ultima .us{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--texto);white-space:pre}
   .sets{display:flex;flex-direction:column;gap:7px}
   .serie{display:flex;align-items:center;gap:8px}
   .serie .sn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--texto2);min-width:15px}
@@ -387,10 +390,10 @@
 <!-- ?v=N: GitHub Pages sirve estos ficheros con max-age=600, asi que sin
      esto un cambio tarda hasta 10 min en llegar al navegador. Subir el
      numero al desplegar fuerza la descarga. -->
-<script src="config.js?v=8"></script>
-<script src="js/datos.js?v=8"></script>
-<script src="js/juego.js?v=8"></script>
-<script src="js/nube.js?v=8"></script>
-<script src="js/app.js?v=8"></script>
+<script src="config.js?v=10"></script>
+<script src="js/datos.js?v=10"></script>
+<script src="js/juego.js?v=10"></script>
+<script src="js/nube.js?v=10"></script>
+<script src="js/app.js?v=10"></script>
 </body>
 </html>
