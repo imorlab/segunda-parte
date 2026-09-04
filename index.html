@@ -14,9 +14,9 @@
      16, 32 y 48 px para los que no. El color se mantiene al dia con el
      tema elegido desde app.js. -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" href="favicon.svg?v=10" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=10">
-<link rel="manifest" href="site.webmanifest?v=10">
+<link rel="icon" href="favicon.svg?v=11" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=11">
+<link rel="manifest" href="site.webmanifest?v=11">
 <meta name="theme-color" content="#1A1F25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,6 +32,7 @@
     --acento:#7BE05C; --sobreAcento:#0A2810;
     --ok:#5FCF97; --sobreOk:#04231A;
     --avisoBg:rgba(123,224,92,.12); --avisoBorde:rgba(123,224,92,.5);
+    --raro:#4FA8FF; --epico:#F5C542;
     --btnBg:#FFFFFF; --btnTexto:#101317;
   }
   html[data-tema="cal"]{
@@ -42,6 +43,7 @@
     --acento:#1F4FD8; --sobreAcento:#FFFFFF;
     --ok:#0E6845; --sobreOk:#FFFFFF;
     --avisoBg:rgba(31,79,216,.08); --avisoBorde:rgba(31,79,216,.4);
+    --raro:#1B62C4; --epico:#8A5D00;
     --btnBg:#12171B; --btnTexto:#FFFFFF;
   }
   html[data-tema="vino"]{
@@ -52,6 +54,7 @@
     --acento:#F0B75A; --sobreAcento:#2A1206;
     --ok:#9AD3AE; --sobreOk:#0E2419;
     --avisoBg:rgba(240,183,90,.13); --avisoBorde:rgba(240,183,90,.5);
+    --raro:#7FC0FF; --epico:#FFD873;
     --btnBg:#FFF7F2; --btnTexto:#1A060B;
   }
 
@@ -208,16 +211,73 @@
   .cuenta .pill{white-space:nowrap}
   .cAviso{margin:10px 0 0;font-size:12.5px;color:var(--acento)}
 
-  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:112px;z-index:40;display:flex;align-items:center;gap:11px;
-    width:calc(100% - 32px);max-width:400px;padding:13px 15px;border-radius:13px;
-    background:var(--panel);border:1px solid var(--acento);box-shadow:0 16px 34px rgba(0,0,0,.42)}
-  .toast.in{animation:sube .3s ease}
-  @keyframes sube{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
-  .toast .ti{font-size:23px;flex:none}
-  .toast .tt{min-width:0}
-  .toast b{display:block;font-size:14px;color:var(--texto)}
+  /* Avisos de juego. --tono lo pone el JS segun el tipo de aviso, asi un
+     logro epico y una serie mas no se ven igual de importantes. */
+  .toast{position:fixed;left:50%;bottom:112px;z-index:40;display:flex;align-items:center;gap:12px;overflow:hidden;
+    width:calc(100% - 32px);max-width:420px;padding:12px 14px;border-radius:15px;
+    background:var(--panel);border:1.5px solid var(--tono);box-shadow:0 18px 38px rgba(0,0,0,.45);
+    transform:translateX(-50%)}
+  .toast::before{content:"";position:absolute;inset:0;background:var(--tono);opacity:.10;pointer-events:none}
+  .toast::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;pointer-events:none;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);transform:translateX(-180%)}
+  .toast.in{animation:entra .42s cubic-bezier(.18,.9,.28,1.3)}
+  .toast.in::after{animation:brillo .85s .2s ease-out}
+  @keyframes entra{from{opacity:0;transform:translate(-50%,22px) scale(.94)}
+                   to{opacity:1;transform:translate(-50%,0) scale(1)}}
+  @keyframes brillo{to{transform:translateX(320%)}}
+  .toast .ti{position:relative;flex:none;display:flex;align-items:center;justify-content:center;
+    width:44px;height:44px;border-radius:13px;background:var(--tono);font-size:22px}
+  .toast .tt{position:relative;flex:1;min-width:0}
+  .toast .tr{display:block;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--tono);font-weight:700}
+  .toast b{display:block;font-size:14.5px;line-height:1.2;color:var(--texto)}
   .toast i{font-style:normal;font-size:12px;color:var(--texto2)}
-  @media (prefers-reduced-motion:reduce){.toast.in{animation:none}.barra span{transition:none}}
+  .toast .tx{position:relative;flex:none;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+    color:var(--tono);white-space:nowrap}
+
+  /* Micro-recompensa: el XP sale del propio boton de la serie. */
+  .xpflota{position:fixed;z-index:45;pointer-events:none;font-family:'IBM Plex Mono',monospace;
+    font-size:15px;font-weight:700;color:var(--acento);text-shadow:0 2px 10px rgba(0,0,0,.55);
+    animation:flota 1s ease-out forwards}
+  @keyframes flota{0%{opacity:0;transform:translate(-50%,0) scale(.8)}
+    20%{opacity:1;transform:translate(-50%,-12px) scale(1.12)}
+    100%{opacity:0;transform:translate(-50%,-50px) scale(1)}}
+
+  /* Subir de nivel para la sesion: es el momento mas raro del juego. */
+  .nivelUp{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.74);animation:aparece .25s ease}
+  @keyframes aparece{from{opacity:0}to{opacity:1}}
+  .nuCaja{position:relative;z-index:1;text-align:center;padding:30px 26px;border-radius:20px;
+    width:calc(100% - 48px);max-width:330px;
+    background:var(--panel);border:1.5px solid var(--acento);box-shadow:0 26px 64px rgba(0,0,0,.6);
+    animation:estalla .5s cubic-bezier(.16,1,.3,1.45)}
+  @keyframes estalla{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+  .nuEt{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--texto2)}
+  .nuN{display:block;font-family:'Archivo Black',sans-serif;font-size:64px;line-height:1;color:var(--acento);margin:8px 0 4px}
+  .nuNom{display:block;font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:.03em;
+    text-transform:uppercase;color:var(--texto)}
+  .nuPie{display:block;margin-top:16px;font-size:12.5px;color:var(--texto2)}
+  .nuTocar{display:block;margin-top:14px;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--texto2)}
+  .conf{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .conf i{position:absolute;top:-16px;width:7px;height:12px;border-radius:1px;animation:cae linear forwards}
+  @keyframes cae{to{transform:translateY(105vh) rotate(620deg);opacity:.15}}
+
+  .hchip.sube{animation:latido .6s ease}
+  @keyframes latido{0%{transform:scale(1)}35%{transform:scale(1.08)}100%{transform:scale(1)}}
+
+  /* Rareza del logro, tambien en la rejilla de Progreso. */
+  .logro.on.rara{border-color:var(--raro)}
+  .logro.on.epica{border-color:var(--epico)}
+  .logro .lr{display:block;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+    color:var(--texto2);margin-top:5px}
+  .logro.on.rara .lr{color:var(--raro)}
+  .logro.on.epica .lr{color:var(--epico)}
+  .logro.on.comun .lr{color:var(--acento)}
+
+  @media (prefers-reduced-motion:reduce){
+    .toast.in,.toast.in::after,.nuCaja,.nivelUp,.hchip.sube,.xpflota{animation-duration:.01ms}
+    .conf{display:none}
+    .barra span{transition:none}
+  }
 
   .vid{margin-top:18px;border-top:1px dashed var(--borde);padding-top:14px}
   .yt{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:10px;
@@ -383,6 +443,7 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="nivelUp" id="nivelUp" role="alertdialog" aria-labelledby="nuNom" hidden></div>
 
 <!-- supabase-js: la sincronizacion es opcional, si falla la app sigue
      funcionando contra el almacenamiento del navegador. -->
@@ -390,10 +451,10 @@
 <!-- ?v=N: GitHub Pages sirve estos ficheros con max-age=600, asi que sin
      esto un cambio tarda hasta 10 min en llegar al navegador. Subir el
      numero al desplegar fuerza la descarga. -->
-<script src="config.js?v=10"></script>
-<script src="js/datos.js?v=10"></script>
-<script src="js/juego.js?v=10"></script>
-<script src="js/nube.js?v=10"></script>
-<script src="js/app.js?v=10"></script>
+<script src="config.js?v=11"></script>
+<script src="js/datos.js?v=11"></script>
+<script src="js/juego.js?v=11"></script>
+<script src="js/nube.js?v=11"></script>
+<script src="js/app.js?v=11"></script>
 </body>
 </html>

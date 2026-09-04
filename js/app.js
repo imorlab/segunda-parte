@@ -131,24 +131,99 @@
     return nuevos;
   }
 
-  var cola = [], mostrando = false;
-  function brindis(icono, titulo, detalle){
-    cola.push({icono:icono, titulo:titulo, detalle:detalle || ""});
+  /* Cada tipo de aviso tiene su color, su vibracion y su etiqueta, para
+     que batir una marca no se sienta igual que terminar una serie mas. */
+  var TIPOS = {
+    sesion:  {tono:"var(--acento)", et:"Sesión",  vibra:[30,40,30]},
+    record:  {tono:"var(--epico)",  et:"Récord",  vibra:[45,45,45,45,80]},
+    comun:   {tono:"var(--acento)", et:"Logro",   vibra:[30,50,60]},
+    rara:    {tono:"var(--raro)",   et:"Logro raro",  vibra:[40,50,40,50,70]},
+    epica:   {tono:"var(--epico)",  et:"Logro épico", vibra:[60,50,60,50,60,50,110]}
+  };
+
+  var cola = [], mostrando = false, nivelPendiente = null;
+
+  function brindis(tipo, icono, titulo, detalle, xp){
+    cola.push({tipo:tipo, icono:icono, titulo:titulo, detalle:detalle || "", xp:xp || ""});
     if(!mostrando) siguienteBrindis();
   }
+
   function siguienteBrindis(){
     var t = $("toast");
-    if(!cola.length){ mostrando = false; t.hidden = true; return; }
+    if(!cola.length){
+      mostrando = false; t.hidden = true;
+      /* El nivel se guarda para el final: es el remate, no un aviso mas. */
+      if(nivelPendiente){ var n = nivelPendiente; nivelPendiente = null; pantallaNivel(n); }
+      return;
+    }
     mostrando = true;
-    var m = cola.shift();
-    t.innerHTML = '<span class="ti"></span><span class="tt"><b></b><i></i></span>';
+    var m = cola.shift(), d = TIPOS[m.tipo] || TIPOS.comun;
+    t.style.setProperty("--tono", d.tono);
+    t.innerHTML = '<span class="ti"></span><span class="tt">' +
+                  '<span class="tr"></span><b></b><i></i></span><span class="tx"></span>';
     t.querySelector(".ti").textContent = m.icono;
+    t.querySelector(".tr").textContent = d.et;
     t.querySelector("b").textContent = m.titulo;
     t.querySelector("i").textContent = m.detalle;
+    t.querySelector(".tx").textContent = m.xp;
     t.hidden = false;
     t.classList.remove("in"); void t.offsetWidth; t.classList.add("in");
-    if(navigator.vibrate) navigator.vibrate(35);
-    setTimeout(siguienteBrindis, 2600);
+    vibrar(d.vibra);
+    setTimeout(siguienteBrindis, 2700);
+  }
+
+  function vibrar(patron){
+    try { if(navigator.vibrate) navigator.vibrate(patron); } catch(e){}
+  }
+
+  /* Numerito de XP saliendo del propio boton: la recompensa mas pequena y
+     la mas frecuente, asi que va sin aviso ni cola, solo un guino. */
+  function flotaXP(desde, texto){
+    var r = desde.getBoundingClientRect();
+    var e = document.createElement("span");
+    e.className = "xpflota";
+    e.textContent = texto;
+    e.style.left = (r.left + r.width / 2) + "px";
+    e.style.top = (r.top - 6) + "px";
+    document.body.appendChild(e);
+    setTimeout(function(){ e.remove(); }, 1100);
+  }
+
+  function pantallaNivel(n){
+    var capa = $("nivelUp");
+    capa.innerHTML =
+      '<div class="conf"></div>' +
+      '<div class="nuCaja">' +
+        '<span class="nuEt">Has subido de nivel</span>' +
+        '<span class="nuN"></span>' +
+        '<span class="nuNom" id="nuNom"></span>' +
+        '<span class="nuPie"></span>' +
+        '<span class="nuTocar">Toca para seguir</span>' +
+      '</div>';
+    capa.querySelector(".nuN").textContent = n.n;
+    capa.querySelector(".nuNom").textContent = n.nombre;
+    capa.querySelector(".nuPie").textContent = n.hasta == null
+      ? n.xp.toLocaleString("es-ES") + " XP · nivel máximo"
+      : n.xp.toLocaleString("es-ES") + " XP · siguiente a " + n.hasta.toLocaleString("es-ES");
+    confeti(capa.querySelector(".conf"));
+    capa.hidden = false;
+    vibrar([70,60,70,60,70,60,160]);
+    var cerrar = function(){ capa.hidden = true; capa.innerHTML = ""; };
+    capa.addEventListener("click", cerrar, {once:true});
+    setTimeout(function(){ if(!capa.hidden) cerrar(); }, 5200);
+  }
+
+  function confeti(host){
+    var tonos = ["var(--acento)", "var(--epico)", "var(--raro)", "var(--texto)"];
+    for(var i = 0; i < 44; i++){
+      var p = document.createElement("i");
+      p.style.left = (Math.random() * 100) + "%";
+      p.style.background = tonos[i % tonos.length];
+      p.style.animationDuration = (1.5 + Math.random() * 1.4) + "s";
+      p.style.animationDelay = (Math.random() * 0.5) + "s";
+      p.style.opacity = 0.55 + Math.random() * 0.45;
+      host.appendChild(p);
+    }
   }
 
   /* Compara el antes y el despues de marcar una serie y celebra lo que
@@ -162,17 +237,21 @@
       var a = antes.records[k];
       if(a && d.records[k].e1rm > a.e1rm){
         var r = d.records[k];
-        brindis("🏆", "Récord en " + nombreMarca(r),
-                kg(r.peso) + " kg × " + r.reps + "  ·  +100 XP");
+        brindis("record", "🏆", nombreMarca(r),
+                kg(r.peso) + " kg × " + r.reps + " — tu mejor marca", "+100");
       }
     });
     nuevosLogros.forEach(function(c){
       var l = Juego.LOGROS.filter(function(x){ return x.clave === c; })[0];
-      if(l) brindis(l.icono, "Logro: " + l.nombre, l.desc + "  ·  +75 XP");
+      if(l) brindis(l.rango || "comun", l.icono, l.nombre, l.desc,
+                    "+" + (Juego.XP_LOGRO[l.rango] || Juego.XP_LOGRO.comun));
     });
     if(d.nivel > antes.nivel){
-      var n = Juego.nivel(d.xp);
-      brindis("⬆️", "Nivel " + n.n + " · " + n.nombre, "Sigue así.");
+      nivelPendiente = Juego.nivel(d.xp);
+      /* La pantalla espera a que se vacie la cola para ser el remate. Si
+         no hay ningun aviso que mostrar, esa cola no llega a arrancar y
+         habria que dispararla aqui. */
+      if(!mostrando){ var n = nivelPendiente; nivelPendiente = null; pantallaNivel(n); }
     }
   }
 
@@ -289,6 +368,8 @@
           ejercicio:o.badge, slot:o.slot, n_serie:i,
           variante: o.variante(), peso:num(ikg.value), reps:num(irp.value)
         });
+        flotaXP(ok, "+10 XP");
+        vibrar(18);
         cerrarSiProcede(o.day);
         celebrar(antes);
         arrancarDescanso(o.rest);
@@ -365,7 +446,7 @@
     var debe = Juego.sesionCompleta(hechas, s.series_plan || totalSeries(dia));
     if(s.completada !== debe){
       Nube.cerrarSesion(s, debe);
-      if(debe) brindis("✅", "Sesión completada", hechas + " series  ·  +50 XP");
+      if(debe) brindis("sesion", "✅", "Sesión completada", hechas + " series registradas", "+50");
     }
   }
 
@@ -554,13 +635,20 @@
     host.appendChild(h2);
     var gl = document.createElement("div");
     gl.className = "logros";
-    Juego.LOGROS.forEach(function(l){
+    var ETIQ = {comun:"Común", rara:"Raro", epica:"Épico"};
+    var orden = {epica:0, rara:1, comun:2};
+    Juego.LOGROS.slice().sort(function(a, b){
+      var ga = ganados[a.clave] ? 0 : 1, gb = ganados[b.clave] ? 0 : 1;
+      return ga - gb || orden[b.rango] - orden[a.rango];
+    }).forEach(function(l){
       var d = document.createElement("div");
-      d.className = "logro" + (ganados[l.clave] ? " on" : "");
-      d.innerHTML = '<span class="li"></span><b></b><i></i>';
+      d.className = "logro " + (l.rango || "comun") + (ganados[l.clave] ? " on" : "");
+      d.innerHTML = '<span class="li"></span><b></b><i></i><span class="lr"></span>';
       d.querySelector(".li").textContent = l.icono;
       d.querySelector("b").textContent = l.nombre;
       d.querySelector("i").textContent = l.desc;
+      d.querySelector(".lr").textContent =
+        ETIQ[l.rango || "comun"] + " · " + (Juego.XP_LOGRO[l.rango] || Juego.XP_LOGRO.comun) + " XP";
       gl.appendChild(d);
     });
     host.appendChild(gl);

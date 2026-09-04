@@ -15,17 +15,23 @@ var Juego = (function(){
   var XP_SERIE  = 10;
   var XP_SESION = 50;
   var XP_RECORD = 100;
-  var XP_LOGRO  = 75;
+  var XP_LOGRO  = {comun:75, rara:150, epica:300};
 
+  /* Curva de niveles. Con dos sesiones semanales salen unos 440 XP de base,
+     mas records y logros: entre 500 y 800 por semana segun la racha. Los
+     primeros niveles caen pronto para enganchar; a partir del quinto cada
+     salto cuesta cerca del doble, y Leyenda queda a ano y medio de
+     constancia real. Sin escalon final no habria nada que perseguir. */
   var NIVELES = [
     {min:0,     nombre:"Suplente"},
-    {min:500,   nombre:"Convocado"},
-    {min:1200,  nombre:"Titular"},
-    {min:2200,  nombre:"Fijo en el once"},
-    {min:3600,  nombre:"Capitan"},
-    {min:5500,  nombre:"Pichichi"},
-    {min:8000,  nombre:"Balon de Oro"},
-    {min:11000, nombre:"Leyenda"}
+    {min:1000,  nombre:"Convocado"},
+    {min:2800,  nombre:"Titular"},
+    {min:5600,  nombre:"Fijo en el once"},
+    {min:10000, nombre:"Capitan"},
+    {min:16500, nombre:"Pichichi"},
+    {min:25500, nombre:"Balon de Oro"},
+    {min:37500, nombre:"Historico"},
+    {min:54000, nombre:"Leyenda"}
   ];
 
   /* Indice de semana: el lunes de esa fecha en dias desde epoch. Dos
@@ -132,10 +138,14 @@ var Juego = (function(){
 
   function xp(estado){
     var sesiones = (estado.sesiones || []).filter(function(s){ return s.completada; }).length;
+    var porLogros = (estado.logros || []).reduce(function(a, l){
+      var def = LOGROS.filter(function(x){ return x.clave === l.clave; })[0];
+      return a + (XP_LOGRO[def && def.rango] || XP_LOGRO.comun);
+    }, 0);
     return (estado.series || []).length * XP_SERIE
          + sesiones * XP_SESION
          + recordsBatidos(estado.series || []) * XP_RECORD
-         + (estado.logros || []).length * XP_LOGRO;
+         + porLogros;
   }
 
   function nivel(puntos){
@@ -157,29 +167,29 @@ var Juego = (function(){
   /* ------------------------------------------------------------- logros */
 
   var LOGROS = [
-    {clave:"debut",      icono:"🎽", nombre:"Debut",           desc:"Completa tu primera sesion.",
+    {clave:"debut", rango:"comun",      icono:"🎽", nombre:"Debut",           desc:"Completa tu primera sesion.",
       test:function(c){ return c.sesiones >= 1; }},
-    {clave:"semana",     icono:"📅", nombre:"Semana redonda",  desc:"Las dos sesiones de una misma semana.",
+    {clave:"semana", rango:"comun",     icono:"📅", nombre:"Semana redonda",  desc:"Las dos sesiones de una misma semana.",
       test:function(c){ return c.racha.actual >= 1 || c.racha.mejor >= 1; }},
-    {clave:"diez",       icono:"🔟", nombre:"Diez de diez",    desc:"10 sesiones completadas.",
+    {clave:"diez", rango:"rara",       icono:"🔟", nombre:"Diez de diez",    desc:"10 sesiones completadas.",
       test:function(c){ return c.sesiones >= 10; }},
-    {clave:"treinta",    icono:"🏛️", nombre:"Veterano",        desc:"30 sesiones completadas.",
+    {clave:"treinta", rango:"epica",    icono:"🏛️", nombre:"Veterano",        desc:"30 sesiones completadas.",
       test:function(c){ return c.sesiones >= 30; }},
-    {clave:"techo",      icono:"📈", nombre:"Nuevo techo",     desc:"Bate tu marca en un ejercicio.",
+    {clave:"techo", rango:"comun",      icono:"📈", nombre:"Nuevo techo",     desc:"Bate tu marca en un ejercicio.",
       test:function(c){ return c.records >= 1; }},
-    {clave:"techo10",    icono:"🚀", nombre:"Sin techo",       desc:"Bate tu marca 10 veces.",
+    {clave:"techo10", rango:"epica",    icono:"🚀", nombre:"Sin techo",       desc:"Bate tu marca 10 veces.",
       test:function(c){ return c.records >= 10; }},
-    {clave:"mes",        icono:"🔥", nombre:"Mes entero",      desc:"4 semanas seguidas sin fallar.",
+    {clave:"mes", rango:"rara",        icono:"🔥", nombre:"Mes entero",      desc:"4 semanas seguidas sin fallar.",
       test:function(c){ return c.racha.mejor >= 4; }},
-    {clave:"trimestre",  icono:"💎", nombre:"Trimestre",       desc:"12 semanas seguidas sin fallar.",
+    {clave:"trimestre", rango:"epica",  icono:"💎", nombre:"Trimestre",       desc:"12 semanas seguidas sin fallar.",
       test:function(c){ return c.racha.mejor >= 12; }},
-    {clave:"tonelada",   icono:"🏗️", nombre:"Tonelada",        desc:"1.000 kg movidos en una sola sesion.",
+    {clave:"tonelada", rango:"rara",   icono:"🏗️", nombre:"Tonelada",        desc:"1.000 kg movidos en una sola sesion.",
       test:function(c){ return c.mejorVolumenSesion >= 1000; }},
-    {clave:"diezton",    icono:"🐘", nombre:"Diez toneladas",  desc:"10.000 kg movidos en total.",
+    {clave:"diezton", rango:"rara",    icono:"🐘", nombre:"Diez toneladas",  desc:"10.000 kg movidos en total.",
       test:function(c){ return c.volumen >= 10000; }},
-    {clave:"madrugador", icono:"🌅", nombre:"Madrugador",      desc:"Termina una serie antes de las 8:00.",
+    {clave:"madrugador", rango:"comun", icono:"🌅", nombre:"Madrugador",      desc:"Termina una serie antes de las 8:00.",
       test:function(c){ return c.horas.some(function(h){ return h < 8; }); }},
-    {clave:"nocturno",   icono:"🌙", nombre:"Turno de noche",  desc:"Termina una serie despues de las 22:00.",
+    {clave:"nocturno", rango:"comun",   icono:"🌙", nombre:"Turno de noche",  desc:"Termina una serie despues de las 22:00.",
       test:function(c){ return c.horas.some(function(h){ return h >= 22; }); }}
   ];
 
@@ -213,6 +223,7 @@ var Juego = (function(){
 
   return {
     META_SEMANAL: META_SEMANAL,
+    XP_LOGRO: XP_LOGRO,
     COMPLETA_PCT: COMPLETA_PCT,
     minimoSesion: minimoSesion,
     sesionCompleta: sesionCompleta,
