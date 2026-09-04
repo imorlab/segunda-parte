@@ -696,15 +696,31 @@
     p.className = "panel cuenta";
     var m = Nube.modo(), pend = Nube.pendientes();
 
+    var st = Nube.get();
+    var guardado = st.sesiones.length + (st.sesiones.length === 1 ? " sesión" : " sesiones") +
+                   " y " + st.series.length + (st.series.length === 1 ? " serie" : " series") +
+                   " en este dispositivo";
+
     if(m === "local"){
       p.innerHTML = '<p class="cEstado"></p>';
       p.querySelector(".cEstado").textContent =
         "Guardando solo en este navegador. Para sincronizar entre el móvil y el ordenador, " +
         "rellena config.js con los datos de tu proyecto de Supabase.";
     } else if(m === "conectado"){
-      p.innerHTML = '<p class="cEstado"></p><button class="pill" type="button" id="salir">Cerrar sesión</button>';
-      p.querySelector(".cEstado").textContent =
-        "Sincronizado como " + Nube.email() + (pend ? " · " + pend + " pendientes de subir" : "");
+      p.innerHTML = '<p class="cEstado"></p><p class="cDato"></p>' +
+                    '<p class="cAviso" id="cErr" hidden></p>' +
+                    '<button class="pill" type="button" id="salir">Cerrar sesión</button>';
+      p.querySelector(".cEstado").textContent = "Sincronizado como " + Nube.email();
+      p.querySelector(".cDato").textContent = guardado +
+        (pend ? " · " + pend + " sin subir todavía" : " · todo subido");
+      /* Una subida que falla en silencio parece que va bien. Si algo se
+         queda en la cola, aqui se dice por que. */
+      var err = Nube.ultimoError();
+      if(err){
+        var e = p.querySelector("#cErr");
+        e.hidden = false;
+        e.textContent = "La última subida falló: " + err;
+      }
       p.querySelector("#salir").addEventListener("click", function(){
         Nube.salir().then(function(){ render(); });
       });
@@ -714,7 +730,8 @@
         'Sin contraseña: recibes un enlace y listo.</p>' +
         '<div class="cForm"><input id="cMail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com">' +
         '<button class="pill" type="button" id="cEntrar">Entrar</button></div>' +
-        '<p class="cAviso" id="cAviso" hidden></p>';
+        '<p class="cDato"></p><p class="cAviso" id="cAviso" hidden></p>';
+      p.querySelector(".cDato").textContent = guardado + ". Al entrar se suben a tu cuenta.";
       var mail = p.querySelector("#cMail"), av = p.querySelector("#cAviso");
       if(Nube.email()) mail.value = Nube.email();
       p.querySelector("#cEntrar").addEventListener("click", function(){

@@ -93,21 +93,41 @@ var Nube = (function(){
     escribir(COLA, c);
   }
 
+  /* Las dos tablas tienen, ademas de la clave primaria, una clave natural
+     unica. Sin decirselo, upsert resuelve solo por id: una fila con id
+     nuevo que choque en la clave natural falla, vuelve a la cola y se
+     queda ahi para siempre reintentandose. */
+  var CHOQUE = {
+    sesion: "usuario,fecha,dia",
+    serie:  "sesion,ejercicio,slot,n_serie",
+    logro:  "usuario,clave"
+  };
+
+  var ultimoError = null;
+
   /* Sube lo pendiente en orden. Si algo falla se deja en la cola y se
      reintenta al proximo arranque; nunca se pierde una serie. */
   function vaciarCola(){
-    if(!conectado()) return Promise.resolve();
+    if(!conectado()) return Promise.resolve(0);
     var c = leer(COLA, []);
-    if(!c.length) return Promise.resolve();
+    if(!c.length){ ultimoError = null; return Promise.resolve(0); }
+    var fallo = null;
     return c.reduce(function(cad, item){
       return cad.then(function(pend){
-        return cli.from(item.tabla).upsert(item.fila).then(function(r){
+        var op = CHOQUE[item.tabla] ? {onConflict: CHOQUE[item.tabla]} : undefined;
+        return cli.from(item.tabla).upsert(item.fila, op).then(function(r){
           if(r.error) throw r.error;
           return pend;
-        }).catch(function(){ return pend.concat([item]); });
+        }).catch(function(e){
+          /* Guardar el motivo: un fallo mudo deja la impresion de que se
+             esta guardando cuando no llega nada al servidor. */
+          fallo = (e && e.message) ? e.message : "error desconocido";
+          return pend.concat([item]);
+        });
       });
     }, Promise.resolve([])).then(function(pend){
       escribir(COLA, pend);
+      ultimoError = pend.length ? fallo : null;
       return pend.length;
     });
   }
@@ -239,6 +259,7 @@ var Nube = (function(){
     get: function(){ return estado; },
     sesionDe:sesionDe, marcarSerie:marcarSerie, desmarcarSerie:desmarcarSerie,
     cerrarSesion:cerrarSesion, guardarLogro:guardarLogro, guardar:guardarCache,
+    ultimoError: function(){ return ultimoError; },
     pendientes: function(){ return leer(COLA, []).length; }
   };
 })();
