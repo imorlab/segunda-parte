@@ -38,18 +38,24 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
 Todo se calcula a partir de las series registradas, nunca de contadores guardados,
 así que el marcador no puede desincronizarse.
 
-| Qué                        | XP   |
-| -------------------------- | ---- |
-| Serie completada           | 10   |
-| Sesión completa            | 50   |
-| Batir tu marca (récord)    | 100  |
-| Logro desbloqueado         | 75   |
+| Qué                        | XP         |
+| -------------------------- | ---------- |
+| Serie completada           | 10         |
+| Sesión completa            | 50         |
+| Batir tu marca (récord)    | 100        |
+| Logro común / raro / épico | 75/150/300 |
+
+Los 12 logros tienen rareza, y cada recompensa se ve y se siente distinta: color propio,
+etiqueta y patrón de vibración. Una serie suelta lanza un **+10 XP** desde el propio botón;
+subir de nivel para la pantalla con confeti, porque es lo más raro que pasa en el juego.
 
 Una sesión cuenta al llegar al **70%** de sus series. Exigir el 100% hacía que saltarte
 un ejercicio porque la máquina estaba ocupada te costara la racha, y que añadir ejercicios
 al plan invalidara sesiones ya hechas.
 
-Ocho niveles, de *Suplente* a *Leyenda*. La **racha** cuenta semanas seguidas con las
+Nueve niveles, de *Suplente* a *Leyenda*. La curva está calculada sobre unos 500-800 XP
+semanales: los primeros caen pronto para enganchar y Leyenda queda a año y medio de
+constancia real. La **racha** cuenta semanas seguidas con las
 dos sesiones hechas; la semana en curso no la rompe hasta que termina. Los **récords**
 se miden en 1RM estimado (fórmula de Epley), que permite comparar 60 kg × 8 con
 70 kg × 4. Hay 12 **logros**.
