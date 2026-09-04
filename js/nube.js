@@ -35,7 +35,12 @@ var Nube = (function(){
     catch(e){
       /* Guardar lo ilegible antes de seguir: el arranque con estado vacio
          acabaria sobrescribiendolo, y ahi dentro puede estar casi todo. */
-      try { localStorage.setItem(k + ".roto." + Date.now(), v); } catch(e2){}
+      try {
+        if(!localStorage.getItem(k + ".roto")) localStorage.setItem(k + ".roto", v);
+        /* Dejarla legible: si no, cada lectura vuelve a caer aqui y con
+           una clave que se lee en cada serie eso llena el disco solo. */
+        localStorage.setItem(k, JSON.stringify(pordefecto));
+      } catch(e2){}
       errorDisco = "Se han encontrado datos ilegibles y se han apartado a un lado.";
       return pordefecto;
     }
@@ -62,19 +67,23 @@ var Nube = (function(){
 
   /* Id derivado del texto: mismo texto, mismo uuid, en cualquier
      dispositivo y despues de cualquier borrado. */
+  /* Cuatro estados independientes, no uno. Con un solo acumulador de 32
+     bits las cuatro palabras del uuid eran funcion del mismo numero: la
+     entropia real eran 32 bits y a los cinco anos habia ~1% de colision,
+     que atasca la cola con un choque de clave primaria. */
+  var SEMILLAS = [1779033703, 3144134277, 1013904242, 2773480762];
   function idDe(texto){
-    var h = 1779033703 ^ texto.length, i;
-    for(i = 0; i < texto.length; i++){
-      h = Math.imul(h ^ texto.charCodeAt(i), 3432918353);
-      h = h << 13 | h >>> 19;
-    }
-    var sig = function(){
+    var t = "", i, j;
+    for(j = 0; j < 4; j++){
+      var h = SEMILLAS[j] ^ texto.length;
+      for(i = 0; i < texto.length; i++){
+        h = Math.imul(h ^ texto.charCodeAt(i), 3432918353 + j * 2);
+        h = h << 13 | h >>> 19;
+      }
       h = Math.imul(h ^ (h >>> 16), 2246822507);
       h = Math.imul(h ^ (h >>> 13), 3266489909);
-      return (h ^= h >>> 16) >>> 0;
-    };
-    var t = "";
-    for(i = 0; i < 4; i++) t += ("00000000" + sig().toString(16)).slice(-8);
+      t += ("00000000" + ((h ^= h >>> 16) >>> 0).toString(16)).slice(-8);
+    }
     return t.slice(0,8) + "-" + t.slice(8,12) + "-8" + t.slice(13,16) + "-" +
            ((parseInt(t[16],16) & 3 | 8).toString(16)) + t.slice(17,20) + "-" + t.slice(20,32);
   }
@@ -102,8 +111,18 @@ var Nube = (function(){
     return out;
   }
 
-  var estado = leer(CACHE, {sesiones:[], series:[], logros:[]});
   function vacio(){ return {sesiones:[], series:[], logros:[]}; }
+  /* Filtrar al cargar: si no, una foto del disco anterior al borrado
+     resucita la serie, la pinta y le cuenta el XP. */
+  function cargar(){
+    var e = leer(CACHE, vacio()), t = leer(TUMBAS, {});
+    ["sesiones","series","logros"].forEach(function(l){
+      var tabla = l === "sesiones" ? "sesion" : l === "series" ? "serie" : "logro";
+      e[l] = (e[l] || []).filter(function(f){ return !t[tabla + ":" + claveDe(tabla, f)]; });
+    });
+    return e;
+  }
+  var estado = cargar();
 
   function avisar(){
     oyentes.forEach(function(f){
@@ -115,14 +134,32 @@ var Nube = (function(){
   /* Tumbas: lo que se borra a proposito deja marca. Sin ellas la fusion
      de abajo, y la descarga del servidor, resucitan la serie borrada.
      Caducan a los 90 dias para que la lista no crezca sin fin. */
-  var DIAS_TUMBA = 90;
+  /* No caducan por tiempo: mientras la fila pueda seguir en el servidor,
+     olvidar la tumba la resucita. Se acota por numero, quedandose con las
+     mas recientes. */
+  var MAX_TUMBAS = 800;
   function tumbas(){
-    var t = leer(TUMBAS, {}), corte = Date.now() - DIAS_TUMBA * 86400000, limpio = {}, cambia = false;
-    Object.keys(t).forEach(function(k){
-      if(t[k] > corte) limpio[k] = t[k]; else cambia = true;
+    var t = leer(TUMBAS, {});
+    var ks = Object.keys(t);
+    if(ks.length > MAX_TUMBAS){
+      ks.sort(function(a,b){ return t[b] - t[a]; });
+      var limpio = {};
+      ks.slice(0, MAX_TUMBAS).forEach(function(k){ limpio[k] = t[k]; });
+      escribir(TUMBAS, limpio);
+      return limpio;
+    }
+    return t;
+  }
+  /* Al restaurar un respaldo hay que levantar la tumba, o la restauracion
+     se deshace sola en la siguiente sincronizacion y sin decir nada. */
+  function desenterrar(tabla, filas){
+    var t = tumbas(), n = 0;
+    (filas || []).forEach(function(f){
+      var k = tabla + ":" + claveDe(tabla, f);
+      if(t[k]){ delete t[k]; n++; }
     });
-    if(cambia) escribir(TUMBAS, limpio);
-    return limpio;
+    if(n) escribir(TUMBAS, t);
+    return n;
   }
   function enterrar(tabla, fila){
     var t = tumbas();
@@ -135,6 +172,7 @@ var Nube = (function(){
      Lo enterrado no vuelve. */
   function guardarCache(){
     var disco = leer(CACHE, vacio()), t = tumbas();
+    if(!estado) estado = vacio();
     ["sesiones","series","logros"].forEach(function(l){
       var tabla = l === "sesiones" ? "sesion" : l === "series" ? "serie" : "logro";
       var hay = {};
@@ -252,12 +290,20 @@ var Nube = (function(){
 
   /* Errores que no van a arreglarse reintentando: la fila es invalida y
      bloquearia la cola para siempre. Se aparta con su motivo a la vista. */
-  var PERMANENTE = /22P02|22003|428C9|23503|23514|22001|invalid input syntax|numeric field overflow|non-DEFAULT value/i;
+  /* 23503 (clave ajena) NO entra: casi siempre es que la serie va antes
+     que su sesion en la cola, y eso se arregla reintentando en orden. */
+  var PERMANENTE = /22P02|22003|428C9|23514|22001|42501|23505|invalid input syntax|numeric field overflow|non-DEFAULT value|row-level security|duplicate key/i;
+  var MAX_INTENTOS = 6;
   function esPermanente(e){
     return !!(e && PERMANENTE.test((e.code || "") + " " + (e.message || "")));
   }
+  /* Sin codigo y con pinta de fetch fallido: no hay red, no tiene sentido
+     seguir recorriendo la cola. */
+  function esDeRed(e){
+    return !!(e && !e.code && /fetch|network|Failed to fetch|load failed/i.test(e.message || ""));
+  }
 
-  var vaciando = false, otraVuelta = false;
+  var vaciando = false, otraVuelta = false, intentos = {};
 
   function vaciarCola(){
     if(!conectado()) return Promise.resolve(0);
@@ -266,6 +312,12 @@ var Nube = (function(){
     if(!c.length){ ultimoError = null; return Promise.resolve(0); }
 
     vaciando = true;
+    /* Las sesiones primero: una serie sube antes que su sesion y falla por
+       clave ajena, y encolar mueve la fila al final, asi que el orden
+       natural de la cola no lo garantiza. */
+    var orden = {sesion:0, serie:1, logro:2};
+    c = c.slice().sort(function(a, b){ return orden[a.tabla] - orden[b.tabla]; });
+
     var quitar = {}, muertas = [], fallo = null, corta = false;
     return c.reduce(function(cad, item){
       return cad.then(function(){
@@ -278,19 +330,30 @@ var Nube = (function(){
           quitar[item.qid] = true;
         }).catch(function(e){
           fallo = (e && e.message) ? e.message : "error desconocido";
-          if(esPermanente(e)){
+          if(esDeRed(e)){ corta = true; return; }   // sin red: reintentar entero luego
+          intentos[item.qid] = (intentos[item.qid] || 0) + 1;
+          /* Ni permanente ni red: se salta y se sigue. Un solo elemento
+             problematico no puede bloquear todo lo que venga detras. */
+          if(esPermanente(e) || intentos[item.qid] >= MAX_INTENTOS){
             quitar[item.qid] = true;
-            muertas.push({qid:item.qid, tabla:item.tabla, fila:item.fila, motivo:fallo,
-                          cuando:new Date().toISOString()});
-          } else {
-            corta = true;                       // fallo de red: reintentar entero luego
+            muertas.push({qid:item.qid, tabla:item.tabla, k:item.k, fila:item.fila,
+                          motivo:fallo, cuando:new Date().toISOString()});
           }
         });
       });
     }, Promise.resolve()).then(function(){
       var queda = leer(COLA, []).filter(function(it){ return !quitar[it.qid]; });
       escribir(COLA, queda);
-      if(muertas.length) escribir(MUERTAS, leer(MUERTAS, []).concat(muertas));
+      if(muertas.length){
+        /* Acotada y sin repetir la misma fila: era append-only y con una
+           fila que falla en cada foco de la app llenaba el disco sola. */
+        var todas = leer(MUERTAS, []).concat(muertas), vistas = {}, unicas = [];
+        todas.reverse().forEach(function(x){
+          var k = x.tabla + ":" + (x.k || x.qid);
+          if(!vistas[k]){ vistas[k] = true; unicas.push(x); }
+        });
+        escribir(MUERTAS, unicas.slice(0, 50).reverse());
+      }
       ultimoError = (queda.length || muertas.length) ? fallo : null;
       vaciando = false;
       if(otraVuelta){ otraVuelta = false; return vaciarCola(); }
@@ -314,7 +377,9 @@ var Nube = (function(){
     if(!sesionAuth) return 0;
     var u = sesionAuth.user.id, n = 0, mapa = {};
 
-    var ajenas = estado.sesiones.some(function(s){ return s.usuario !== u && s.usuario !== "local"; });
+    var deOtro = function(f){ return f.usuario !== u && f.usuario !== "local"; };
+    var ajenas = estado.sesiones.some(deOtro) || estado.series.some(deOtro) ||
+                 estado.logros.some(deOtro);
     if(ajenas){
       estado = vacio();
       escribir(COLA, []);
@@ -326,6 +391,7 @@ var Nube = (function(){
     estado.sesiones.forEach(function(s){
       if(s.usuario === "local"){
         var viejo = s.id;
+        desencolar("sesion", s);        // la pendiente lleva la clave vieja
         s.usuario = u;
         s.id = idDe("sesion|" + claveDe("sesion", s));
         mapa[viejo] = s.id;
@@ -334,6 +400,7 @@ var Nube = (function(){
     });
     estado.series.forEach(function(x){
       var toca = false;
+      if(mapa[x.sesion] || x.usuario === "local") desencolar("serie", x);
       if(mapa[x.sesion]){ x.sesion = mapa[x.sesion]; toca = true; }
       if(x.usuario === "local"){ x.usuario = u; toca = true; }
       if(toca){
@@ -341,10 +408,19 @@ var Nube = (function(){
         encolar("serie", x); n++;
       }
     });
+    /* Una serie huerfana, cuya sesion ya no esta, fallaria por clave ajena
+       una y otra vez. Se descarta aqui en vez de envenenar la cola. */
+    var vivas = {};
+    estado.sesiones.forEach(function(s){ vivas[s.id] = true; });
+    estado.series = estado.series.filter(function(x){ return vivas[x.sesion]; });
+
     estado.logros.forEach(function(l){
-      if(l.usuario === "local"){ l.usuario = u; encolar("logro", l); n++; }
+      if(l.usuario === "local"){ desencolar("logro", l); l.usuario = u; encolar("logro", l); n++; }
     });
-    if(n) guardarCache();
+    /* Directo, no fundido: adoptar CAMBIA las claves naturales, asi que
+       fundir con el disco reintroduce las filas viejas y duplica todo el
+       historial, con su XP y su nivel. */
+    if(n) guardarCacheDirecto();
     return n;
   }
 
@@ -353,7 +429,10 @@ var Nube = (function(){
   function bajarTodo(tabla, uid){
     var filas = [], paso = 1000;
     var pagina = function(desde){
+      /* Sin ORDER BY, PostgREST no garantiza el mismo orden entre
+         peticiones y el paginado por offset duplica y pierde filas. */
       return cli.from(tabla).select("*").eq("usuario", uid)
+               .order("id", {ascending:true})
                .range(desde, desde + paso - 1).then(function(r){
         if(r.error) throw r.error;
         filas = filas.concat(r.data || []);
@@ -419,7 +498,7 @@ var Nube = (function(){
     var peso = datos.peso, reps = datos.reps;
     if(peso != null){
       peso = Math.round(Number(peso) * 100) / 100;
-      if(!isFinite(peso) || peso < 0 || peso > 9999) peso = null;
+      if(!isFinite(peso) || peso < 0 || peso > 9999.99) peso = null;
     }
     if(reps != null){
       reps = Math.round(Number(reps));
@@ -430,6 +509,11 @@ var Nube = (function(){
 
   function marcarSerie(s, datos){
     var v = saneaSerie(datos);
+    /* Descartar un dato en silencio y pintar el visto verde es mentir. */
+    if(datos.peso != null && v.peso == null)
+      ultimoError = "El peso indicado está fuera de rango y no se ha guardado.";
+    else if(datos.reps != null && v.reps == null)
+      ultimoError = "Las repeticiones indicadas no son válidas y no se han guardado.";
     var fila = {
       usuario: uid(), sesion: s.id,
       ejercicio: datos.ejercicio, slot: datos.slot, n_serie: datos.n_serie,
@@ -493,7 +577,7 @@ var Nube = (function(){
   if(window.addEventListener){
     window.addEventListener("storage", function(e){
       if(e.key !== CACHE) return;
-      estado = leer(CACHE, vacio());
+      estado = cargar();
       avisar();
     });
     /* Reintentar en cuanto vuelva la red o al volver a la app, sin
@@ -512,6 +596,7 @@ var Nube = (function(){
     alCambiar:alCambiar,
     get: function(){ return estado; },
     guardar: guardarCache,
+    desenterrar: desenterrar,
     sesionDe:sesionDe, marcarSerie:marcarSerie, desmarcarSerie:desmarcarSerie,
     cerrarSesion:cerrarSesion, guardarLogro:guardarLogro,
     pendientes: function(){ return leer(COLA, []).length; },

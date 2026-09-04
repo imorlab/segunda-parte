@@ -856,6 +856,11 @@
       try {
         var st = Nube.get();
         var r = Respaldo.importar(t, st);
+        /* Si algo de lo restaurado estaba borrado, su tumba lo volveria a
+           tirar en la siguiente sincronizacion y sin decir nada. */
+        Nube.desenterrar("sesion", r.filas.sesiones);
+        Nube.desenterrar("serie", r.filas.series);
+        Nube.desenterrar("logro", r.filas.logros);
         Nube.guardar();
         Nube.sincronizar();
         ta.value = ""; ta.hidden = true;

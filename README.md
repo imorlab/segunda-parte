@@ -114,16 +114,21 @@ Cada una está escrita después de perder datos de verdad:
    en el panel de Cuenta.
 4. **Se reconcilia por clave natural, no por id**, para que una divergencia de ids no
    duplique series ni infle el XP.
-5. **Los borrados dejan tumba** (90 días), o la fusión con el disco y la siguiente
-   descarga resucitan la serie borrada.
+5. **Los borrados dejan tumba**, o la fusión con el disco y la siguiente descarga
+   resucitan la serie borrada. No caducan por tiempo (olvidarlas la resucita); se acotan
+   por número. Restaurar un respaldo las levanta.
 
 Además: la cola aparta las filas que Postgres rechazaría siempre en vez de atascarse con
 ellas, la descarga va paginada (PostgREST corta en 1000 filas), y un recuento parcial
 nunca puede degradar una sesión ya dada por completada.
 
 ```bash
-node tools/prueba-sincronizacion.js   # 7 escenarios que costaron datos
+node tools/prueba-sincronizacion.js   # 12 escenarios que costaron datos
 ```
+
+El servidor falso de `tools/supabase-falso.js` respeta claves únicas y ajenas, columnas
+generadas, RLS y el orden inestable del paginado, y devuelve copias: si el cliente manda
+algo que Postgres rechazaría, aquí falla igual.
 
 ### iOS: web app en la pantalla de inicio
 

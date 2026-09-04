@@ -153,6 +153,100 @@ console.log("\n7. Mas de 1000 series: la descarga no se queda a medias");
             m.Nube.get().series.length + "/1450");
 }
 
+console.log("\n8. Entrar por primera vez con datos locales no duplica el historial");
+{
+  var alm = {};
+  var m = montar({sinSesion:true, almacen:alm});
+  await m.Nube.init();
+  var s = m.Nube.sesionDe("2026-09-08", "d1", "conPartido", 3);
+  for(var i = 1; i <= 3; i++) m.Nube.marcarSerie(s, {ejercicio:"01", slot:0, n_serie:i, peso:40, reps:8});
+  await espera(150);
+  var m2 = montar({almacen:alm});          // ahora entra con la cuenta
+  await m2.Nube.init(); await espera(500);
+  var st = m2.Nube.get();
+  comprueba("una sola sesion, no dos", st.sesiones.length === 1, st.sesiones.length + "");
+  comprueba("tres series, no seis", st.series.length === 3, st.series.length + "");
+  comprueba("ninguna quedo con usuario local",
+            !st.series.concat(st.sesiones).some(function(f){ return f.usuario === "local"; }));
+  comprueba("y las tres estan arriba", m2.srv.tablas.serie.length === 3,
+            m2.srv.tablas.serie.length + "/3");
+  comprueba("sin filas rechazadas", m2.Nube.rechazadas().length === 0,
+            (m2.Nube.rechazadas()[0] || {}).motivo || "");
+}
+
+console.log("\n9. La lista de rechazadas no crece en cada sincronizacion");
+{
+  var m = montar({antesDeUpsert:function(t, f){
+    return (t === "serie" && f.n_serie === 2) ? {code:"22P02", message:"invalid input syntax"} : null;
+  }});
+  await m.Nube.init();
+  var s = m.Nube.sesionDe("2026-09-09", "d1", "conPartido", 3);
+  for(var i = 1; i <= 3; i++) m.Nube.marcarSerie(s, {ejercicio:"01", slot:0, n_serie:i, peso:40, reps:8});
+  await espera(300);
+  var uno = m.Nube.rechazadas().length;
+  await m.Nube.sincronizar(); await espera(200);
+  await m.Nube.sincronizar(); await espera(200);
+  comprueba("no se apilan copias", m.Nube.rechazadas().length <= uno,
+            uno + " -> " + m.Nube.rechazadas().length);
+}
+
+console.log("\n10. Un rechazo de RLS no atasca el resto de la cola");
+{
+  var m = montar({antesDeUpsert:function(t, f){
+    return (t === "serie" && f.n_serie === 1)
+      ? {code:"42501", message:"new row violates row-level security policy"} : null;
+  }});
+  await m.Nube.init();
+  var s = m.Nube.sesionDe("2026-09-10", "d1", "conPartido", 3);
+  for(var i = 1; i <= 3; i++) m.Nube.marcarSerie(s, {ejercicio:"01", slot:0, n_serie:i, peso:40, reps:8});
+  await espera(400);
+  comprueba("las otras dos suben igual", m.srv.tablas.serie.length === 2,
+            m.srv.tablas.serie.length + "/2");
+  comprueba("la cola no queda bloqueada", m.Nube.pendientes() === 0,
+            m.Nube.pendientes() + " pendientes");
+}
+
+console.log("\n11. Paginar con el servidor devolviendo otro orden no pierde ni duplica");
+{
+  var m = montar();
+  m.srv = falso.crearServidorFalso({sesion:{user:{id:UID, email:"a@b.c"}}, ordenInestable:true});
+  var m3 = montar({almacen:{}});
+  m3.srv.tablas.sesion.push({id:"s1", usuario:UID, fecha:"2026-08-01", dia:"d1",
+    modo:"conPartido", series_plan:19, completada:true});
+  for(var i = 1; i <= 1500; i++) m3.srv.tablas.serie.push({id:"r"+String(i).padStart(5,"0"),
+    usuario:UID, sesion:"s1", ejercicio:"01", slot:0, n_serie:i, peso:40, reps:8,
+    hecha_en:"2026-08-01T10:00:00Z"});
+  await m3.Nube.init(); await espera(800);
+  var ids = {}, dup = 0;
+  m3.Nube.get().series.forEach(function(x){ if(ids[x.id]) dup++; ids[x.id] = true; });
+  comprueba("las 1500 distintas", Object.keys(ids).length === 1500, Object.keys(ids).length + "");
+  comprueba("sin duplicadas", dup === 0, dup + " duplicadas");
+}
+
+console.log("\n12. Restaurar un respaldo despues de borrar no se deshace solo");
+{
+  var m = montar();
+  await m.Nube.init();
+  var s = m.Nube.sesionDe("2026-09-11", "d1", "conPartido", 3);
+  for(var i = 1; i <= 3; i++) m.Nube.marcarSerie(s, {ejercicio:"01", slot:0, n_serie:i, peso:40, reps:8});
+  await espera(300);
+  global.Respaldo = null;
+  eval(require("fs").readFileSync("js/respaldo.js", "utf8"));
+  var copia = Respaldo.serializar(m.Nube.get());
+  for(var i = 1; i <= 3; i++) m.Nube.desmarcarSerie(s, {ejercicio:"01", slot:0, n_serie:i});
+  await espera(200);
+  comprueba("borradas", m.Nube.get().series.length === 0);
+  var r = Respaldo.importar(copia, m.Nube.get());
+  m.Nube.desenterrar("sesion", r.filas.sesiones);
+  m.Nube.desenterrar("serie", r.filas.series);
+  m.Nube.guardar();
+  await m.Nube.sincronizar(); await espera(300);
+  comprueba("la restauracion aguanta la sincronizacion", m.Nube.get().series.length === 3,
+            m.Nube.get().series.length + "/3");
+  comprueba("y vuelve a estar arriba", m.srv.tablas.serie.length === 3,
+            m.srv.tablas.serie.length + "/3");
+}
+
 console.log(fallos ? "\n" + fallos + " COMPROBACIONES FALLIDAS\n" : "\nTodo correcto\n");
 process.exit(fallos ? 1 : 0);
 })();

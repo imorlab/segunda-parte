@@ -83,19 +83,20 @@ var Respaldo = (function(){
     if(!d || d.formato !== "segunda-parte") throw new Error("Ese fichero no es un respaldo de Segunda Parte.");
     if(!Array.isArray(d.sesiones) || !Array.isArray(d.series)) throw new Error("El respaldo esta incompleto.");
 
-    var res = {nuevas:{sesiones:0, series:0, logros:0}};
-    var fundir = function(destino, origen, clave){
+    var res = {nuevas:{sesiones:0, series:0, logros:0}, filas:{sesiones:[], series:[], logros:[]}};
+    var fundir = function(destino, origen, clave, guardadas){
       var hay = {};
       destino.forEach(function(f){ hay[f[clave]] = true; });
-      var n = 0;
       origen.forEach(function(f){
-        if(f && f[clave] != null && !hay[f[clave]]){ destino.push(f); hay[f[clave]] = true; n++; }
+        if(f && f[clave] != null && !hay[f[clave]]){
+          destino.push(f); hay[f[clave]] = true; guardadas.push(f);
+        }
       });
-      return n;
+      return guardadas.length;
     };
-    res.nuevas.sesiones = fundir(estado.sesiones, d.sesiones, "id");
-    res.nuevas.series   = fundir(estado.series,   d.series,   "id");
-    res.nuevas.logros   = fundir(estado.logros,   d.logros || [], "clave");
+    res.nuevas.sesiones = fundir(estado.sesiones, d.sesiones, "id", res.filas.sesiones);
+    res.nuevas.series   = fundir(estado.series,   d.series,   "id", res.filas.series);
+    res.nuevas.logros   = fundir(estado.logros,   d.logros || [], "clave", res.filas.logros);
     return res;
   }
 
