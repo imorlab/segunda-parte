@@ -364,10 +364,15 @@
       } else {
         var antes = foto();
         var ses = sesionDelDia(o.day, true);
-        Nube.marcarSerie(ses, {
+        var guardada = Nube.marcarSerie(ses, {
           ejercicio:o.badge, slot:o.slot, n_serie:i,
           variante: o.variante(), peso:num(ikg.value), reps:num(irp.value)
         });
+        if(guardada === false){
+          /* Nunca pintar el visto de una serie que no se ha guardado. */
+          brindis("record", "⚠️", "No se ha podido guardar",
+                  Nube.errorDisco() || "El navegador ha rechazado la escritura.", "");
+        }
         flotaXP(ok, "+10 XP");
         vibrar(18);
         cerrarSiProcede(o.day);
@@ -456,9 +461,14 @@
     var st = Nube.get(), cuenta = {}, tocadas = 0;
     st.series.forEach(function(x){ cuenta[x.sesion] = (cuenta[x.sesion] || 0) + 1; });
     st.sesiones.forEach(function(s){
-      var debe = Juego.sesionCompleta(cuenta[s.id] || 0, s.series_plan || 0);
-      if(s.completada !== debe){ s.completada = debe; tocadas++;
-        Nube.cerrarSesion(s, debe); }
+      /* Solo hacia arriba. Si la descarga viene incompleta el recuento
+         sale corto, y degradar aqui subiria ese falso "sin completar" al
+         servidor, borrando racha y logros ya ganados. Desmarcar series a
+         mano si baja el listón: eso lo lleva cerrarSiProcede. */
+      if(!s.completada && Juego.sesionCompleta(cuenta[s.id] || 0, s.series_plan || 0)){
+        s.completada = true; tocadas++;
+        Nube.cerrarSesion(s, true);
+      }
     });
     return tocadas;
   }
@@ -689,65 +699,162 @@
   function bloqueCuenta(){
     var caja = document.createElement("div");
     var h = document.createElement("h2");
-    h.textContent = "Cuenta";
+    h.textContent = "Cuenta y copia de seguridad";
     caja.appendChild(h);
 
     var p = document.createElement("div");
     p.className = "panel cuenta";
-    var m = Nube.modo(), pend = Nube.pendientes();
-
-    var st = Nube.get();
+    var m = Nube.modo(), pend = Nube.pendientes(), st = Nube.get();
     var guardado = st.sesiones.length + (st.sesiones.length === 1 ? " sesión" : " sesiones") +
                    " y " + st.series.length + (st.series.length === 1 ? " serie" : " series") +
                    " en este dispositivo";
 
-    if(m === "local"){
-      p.innerHTML = '<p class="cEstado"></p>';
-      p.querySelector(".cEstado").textContent =
-        "Guardando solo en este navegador. Para sincronizar entre el móvil y el ordenador, " +
-        "rellena config.js con los datos de tu proyecto de Supabase.";
-    } else if(m === "conectado"){
+    if(m === "conectado"){
       p.innerHTML = '<p class="cEstado"></p><p class="cDato"></p>' +
                     '<p class="cAviso" id="cErr" hidden></p>' +
                     '<button class="pill" type="button" id="salir">Cerrar sesión</button>';
       p.querySelector(".cEstado").textContent = "Sincronizado como " + Nube.email();
       p.querySelector(".cDato").textContent = guardado +
         (pend ? " · " + pend + " sin subir todavía" : " · todo subido");
-      /* Una subida que falla en silencio parece que va bien. Si algo se
-         queda en la cola, aqui se dice por que. */
-      var err = Nube.ultimoError();
-      if(err){
-        var e = p.querySelector("#cErr");
-        e.hidden = false;
-        e.textContent = "La última subida falló: " + err;
-      }
       p.querySelector("#salir").addEventListener("click", function(){
+        var q = Nube.pendientes();
+        if(q && !confirm("Quedan " + q + " cambios sin subir y se perderán al cerrar sesión. " +
+                         "¿Cerrar de todos modos?")) return;
         Nube.salir().then(function(){ render(); });
       });
+    } else if(m === "local"){
+      p.innerHTML = '<p class="cEstado"></p><p class="cDato"></p>';
+      p.querySelector(".cEstado").textContent =
+        "Guardando solo en este navegador. Rellena config.js para sincronizar.";
+      p.querySelector(".cDato").textContent = guardado;
     } else {
+      /* Dos pasos, con el codigo tecleado aqui dentro: en iOS el enlace
+         del correo abre Safari, que es otro contenedor, y la sesion no
+         llegaria nunca a esta app. */
       p.innerHTML =
-        '<p class="cEstado">Entra con tu correo y tus entrenos te siguen a cualquier dispositivo. ' +
-        'Sin contraseña: recibes un enlace y listo.</p>' +
+        '<p class="cEstado">Entra con tu correo y tus entrenos te siguen a cualquier ' +
+        'dispositivo. Te llega un código de 6 dígitos: tecléalo aquí sin salir de la app.</p>' +
         '<div class="cForm"><input id="cMail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com">' +
+        '<button class="pill" type="button" id="cEnviar">Enviar</button></div>' +
+        '<div class="cForm" id="cPaso2" hidden>' +
+        '<input id="cCodigo" type="text" inputmode="numeric" autocomplete="one-time-code" ' +
+        'maxlength="8" placeholder="123456">' +
         '<button class="pill" type="button" id="cEntrar">Entrar</button></div>' +
         '<p class="cDato"></p><p class="cAviso" id="cAviso" hidden></p>';
       p.querySelector(".cDato").textContent = guardado + ". Al entrar se suben a tu cuenta.";
-      var mail = p.querySelector("#cMail"), av = p.querySelector("#cAviso");
+
+      var mail = p.querySelector("#cMail"), cod = p.querySelector("#cCodigo"),
+          paso2 = p.querySelector("#cPaso2"), av = p.querySelector("#cAviso");
       if(Nube.email()) mail.value = Nube.email();
-      p.querySelector("#cEntrar").addEventListener("click", function(){
+      var decir = function(t){ av.hidden = false; av.textContent = t; };
+
+      p.querySelector("#cEnviar").addEventListener("click", function(){
         var dir = mail.value.trim();
-        if(!dir){ av.hidden = false; av.textContent = "Escribe tu correo."; return; }
-        av.hidden = false; av.textContent = "Enviando…";
-        Nube.entrar(dir).then(function(){
-          av.textContent = "Te he mandado un enlace a " + dir + ". Ábrelo en este mismo dispositivo.";
-        }, function(e){
-          av.textContent = "No se ha podido enviar: " + (e && e.message ? e.message : "revisa la configuración.");
-        });
+        if(!dir) return decir("Escribe tu correo.");
+        decir("Enviando…");
+        Nube.pedirCodigo(dir).then(function(){
+          paso2.hidden = false;
+          cod.focus();
+          decir("Código enviado a " + dir + ". Caduca en una hora.");
+        }, function(e){ decir("No se ha podido enviar: " + ((e && e.message) || "revisa la configuración.")); });
       });
-      mail.addEventListener("keydown", function(e){ if(e.key === "Enter") p.querySelector("#cEntrar").click(); });
+      p.querySelector("#cEntrar").addEventListener("click", function(){
+        var dir = mail.value.trim(), c = cod.value.trim();
+        if(!c) return decir("Escribe el código del correo.");
+        decir("Comprobando…");
+        Nube.verificarCodigo(dir, c).then(function(){
+          render();
+        }, function(e){ decir("No ha entrado: " + ((e && e.message) || "código incorrecto o caducado.")); });
+      });
+      cod.addEventListener("keydown", function(e){ if(e.key === "Enter") p.querySelector("#cEntrar").click(); });
+      mail.addEventListener("keydown", function(e){ if(e.key === "Enter") p.querySelector("#cEnviar").click(); });
+    }
+
+    var err = Nube.ultimoError() || Nube.errorDisco();
+    if(err && p.querySelector("#cErr")){
+      var e2 = p.querySelector("#cErr");
+      e2.hidden = false;
+      e2.textContent = "Atención: " + err;
     }
     caja.appendChild(p);
+
+    /* Filas que el servidor no va a aceptar nunca. Se apartan para no
+       atascar la cola, pero tienen que verse o son datos perdidos. */
+    var malas = Nube.rechazadas();
+    if(malas.length){
+      var r = document.createElement("div");
+      r.className = "panel cuenta respaldo";
+      r.innerHTML = '<p class="cAviso"></p><p class="cDato"></p>' +
+                    '<button class="pill" type="button" id="rOlvida">Descartar</button>';
+      r.querySelector(".cAviso").textContent =
+        malas.length + (malas.length === 1 ? " fila rechazada" : " filas rechazadas") +
+        " por el servidor. Están guardadas aquí pero no se sincronizan.";
+      r.querySelector(".cDato").textContent = malas[malas.length - 1].motivo;
+      r.querySelector("#rOlvida").addEventListener("click", function(){
+        Nube.olvidarRechazadas(); render();
+      });
+      caja.appendChild(r);
+    }
+    caja.appendChild(bloqueRespaldo());
     return caja;
+  }
+
+  /* La copia manual es la unica defensa contra que iOS desaloje el origen
+     entero o contra que se borre el icono de la pantalla de inicio: en los
+     dos casos se va todo de golpe y sin aviso. */
+  /* El aviso sobrevive al render() que dispara la restauracion; si no,
+     el usuario no llega a leer si funciono. */
+  var avisoRespaldo = "";
+
+  function bloqueRespaldo(){
+    var p = document.createElement("div");
+    p.className = "panel cuenta respaldo";
+    p.innerHTML =
+      '<p class="cEstado">Guarda una copia de vez en cuando. Es lo único que sobrevive a que ' +
+      'el sistema borre los datos del navegador o a que quites la app de la pantalla de inicio.</p>' +
+      '<p class="cDato" id="rPersist"></p>' +
+      '<div class="cForm"><button class="pill" type="button" id="rExp">Guardar copia</button>' +
+      '<button class="pill" type="button" id="rImp">Restaurar</button></div>' +
+      '<textarea id="rTexto" hidden placeholder="Pega aquí el contenido del respaldo"></textarea>' +
+      '<p class="cAviso" id="rAviso" hidden></p>';
+
+    var av = p.querySelector("#rAviso"), ta = p.querySelector("#rTexto");
+    var decir = function(t){ avisoRespaldo = t; av.hidden = false; av.textContent = t; };
+    if(avisoRespaldo){ av.hidden = false; av.textContent = avisoRespaldo; }
+
+    var per = Nube.persistido();
+    p.querySelector("#rPersist").textContent = per === true
+      ? "Almacenamiento marcado como persistente: el sistema no lo borrará por falta de espacio."
+      : per === false
+        ? "El sistema no ha concedido almacenamiento persistente. La copia manual importa más."
+        : "Almacenamiento persistente: sin determinar en este navegador.";
+
+    p.querySelector("#rExp").addEventListener("click", function(){
+      avisoRespaldo = "";
+      Respaldo.exportar(Nube.get()).then(function(via){
+        decir(via === "compartido" ? "Copia compartida. Guárdala en Archivos o iCloud."
+            : via === "portapapeles" ? "Copia en el portapapeles. Pégala en una nota y guárdala."
+            : via === "descarga" ? "Copia descargada."
+            : via === "cancelado" ? "Copia cancelada."
+            : "No se ha podido crear la copia.");
+      });
+    });
+    p.querySelector("#rImp").addEventListener("click", function(){
+      if(ta.hidden){ ta.hidden = false; ta.focus(); return decir("Pega el respaldo y vuelve a pulsar Restaurar."); }
+      var t = ta.value.trim();
+      if(!t) return decir("Pega antes el contenido del respaldo.");
+      try {
+        var st = Nube.get();
+        var r = Respaldo.importar(t, st);
+        Nube.guardar();
+        Nube.sincronizar();
+        ta.value = ""; ta.hidden = true;
+        decir("Restaurado: " + r.nuevas.sesiones + " sesiones y " + r.nuevas.series +
+              " series nuevas. Nada se ha sobrescrito.");
+        render();
+      } catch(e){ decir(e.message); }
+    });
+    return p;
   }
 
   /* --------------------------------------------------------------- modo */
@@ -855,6 +962,20 @@
   setB.textContent = fmt(lens[li]); paintClock();
 
   /* -------------------------------------------------------------- arranque */
+
+  /* La persistencia se pide tras un gesto real: es la heuristica que
+     WebKit valora, junto con que la app este instalada. */
+  (function persistencia(){
+    var pedido = false;
+    var pide = function(){
+      if(pedido) return;
+      pedido = true;
+      Nube.pedirPersistencia();
+      document.removeEventListener("pointerdown", pide);
+    };
+    document.addEventListener("pointerdown", pide, {once:false});
+    Nube.pedirPersistencia();   // por si ya estaba concedida de antes
+  })();
 
   Nube.alCambiar(function(){ hud(); marcador(); });
   revisarSesiones();

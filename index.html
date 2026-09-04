@@ -14,9 +14,9 @@
      16, 32 y 48 px para los que no. El color se mantiene al dia con el
      tema elegido desde app.js. -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" href="favicon.svg?v=13" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=13">
-<link rel="manifest" href="site.webmanifest?v=13">
+<link rel="icon" href="favicon.svg?v=14" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=14">
+<link rel="manifest" href="site.webmanifest?v=14">
 <meta name="theme-color" content="#1A1F25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -212,6 +212,10 @@
   .cForm input{flex:1;min-width:0;background:var(--fondo);border:1px solid var(--borde2);border-radius:9px;
     color:var(--texto);padding:11px 12px;font:inherit;font-size:16px;-webkit-text-fill-color:var(--texto)}
   .cuenta .pill{white-space:nowrap}
+  .respaldo{margin-top:10px}
+  .respaldo textarea{width:100%;min-height:88px;margin-top:10px;padding:10px;border-radius:9px;resize:vertical;
+    background:var(--fondo);border:1px solid var(--borde2);color:var(--texto);
+    font-family:'IBM Plex Mono',monospace;font-size:16px}
   .cAviso{margin:10px 0 0;font-size:12.5px;color:var(--acento)}
 
   /* Avisos de juego. --tono lo pone el JS segun el tipo de aviso, asi un
@@ -454,10 +458,11 @@
 <!-- ?v=N: GitHub Pages sirve estos ficheros con max-age=600, asi que sin
      esto un cambio tarda hasta 10 min en llegar al navegador. Subir el
      numero al desplegar fuerza la descarga. -->
-<script src="config.js?v=13"></script>
-<script src="js/datos.js?v=13"></script>
-<script src="js/juego.js?v=13"></script>
-<script src="js/nube.js?v=13"></script>
-<script src="js/app.js?v=13"></script>
+<script src="config.js?v=14"></script>
+<script src="js/datos.js?v=14"></script>
+<script src="js/juego.js?v=14"></script>
+<script src="js/respaldo.js?v=14"></script>
+<script src="js/nube.js?v=14"></script>
+<script src="js/app.js?v=14"></script>
 </body>
 </html>

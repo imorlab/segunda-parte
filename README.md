@@ -71,7 +71,8 @@ js/nube.js        Cache local + sincronización con Supabase
 js/app.js         Interfaz
 sql/schema.sql    Esquema de la base de datos
 favicon.svg       Origen del icono; el resto se genera a partir de él
-tools/            Iconos y prueba de regresión de la sincronización
+js/respaldo.js    Exportar e importar el historial
+tools/            Iconos, servidor Supabase falso y pruebas de datos
 ```
 
 ## Iconos
@@ -98,14 +99,45 @@ Funciona sin configurar nada: todo se guarda en el navegador. Cada serie se escr
 `localStorage` al instante y se encola para subir, así que en un gimnasio sin cobertura
 no se pierde nada y se sincroniza al salir.
 
-**Sincronizar nunca borra.** Lo que hay en el dispositivo y no está en el servidor se
-conserva y se reencola, en vez de reemplazar el estado con lo descargado. Una cola vacía
-no demuestra que lo local haya llegado, y confiar en eso costó un entreno entero. El
-precio es que un borrado hecho en otro dispositivo reaparece; perder una sesión es peor.
+### Reglas de la capa de datos
+
+Cada una está escrita después de perder datos de verdad:
+
+1. **Los ids son deterministas**, derivados de la clave natural de la fila. Dos
+   dispositivos, o el mismo tras perder la caché, generan el mismo id para el mismo
+   hecho físico. Sin esto, un upsert por clave natural intenta reescribir la clave
+   primaria de la sesión y la clave ajena de `serie` lo rechaza: el día entero se queda
+   atascado en la cola.
+2. **Sincronizar nunca borra.** Lo local que no esté arriba se conserva y se reencola.
+   Una cola vacía no demuestra que nada quede por subir.
+3. **Nada falla en silencio.** Disco lleno, fila rechazada o sincronización caída se ven
+   en el panel de Cuenta.
+4. **Se reconcilia por clave natural, no por id**, para que una divergencia de ids no
+   duplique series ni infle el XP.
+5. **Los borrados dejan tumba** (90 días), o la fusión con el disco y la siguiente
+   descarga resucitan la serie borrada.
+
+Además: la cola aparta las filas que Postgres rechazaría siempre en vez de atascarse con
+ellas, la descarga va paginada (PostgREST corta en 1000 filas), y un recuento parcial
+nunca puede degradar una sesión ya dada por completada.
 
 ```bash
-node tools/prueba-sincronizacion.js   # prueba de regresión de ese caso
+node tools/prueba-sincronizacion.js   # 7 escenarios que costaron datos
 ```
+
+### iOS: web app en la pantalla de inicio
+
+Es el modo en que se usa, y tiene dos trampas de plataforma:
+
+- **La web app tiene su propio contenedor de almacenamiento, separado de Safari**
+  ([WebKit #181849](https://bugs.webkit.org/show_bug.cgi?id=181849), es por diseño). Un
+  enlace mágico abierto desde el correo crea la sesión en Safari y la web app no la ve
+  nunca. Por eso el acceso es con **código de 6 dígitos** tecleado dentro de la app.
+  Requiere que la plantilla *Magic Link* de Supabase incluya `{{ .Token }}`.
+- **iOS puede desalojar el origen entero** por falta de espacio, y se va todo de golpe.
+  La app pide `navigator.storage.persist()` tras el primer gesto — WebKit usa como
+  heurística que la app esté instalada, así que es el caso favorable — pero no es una
+  garantía. De ahí la copia manual.
 
 Para que el historial te siga entre el móvil y el ordenador:
 
