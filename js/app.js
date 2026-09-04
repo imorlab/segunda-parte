@@ -272,11 +272,15 @@
         '<span class="dorsal">' + o.badge + '</span>' +
         '<span class="nm"><b></b><span class="alt"></span></span>' +
         '<span class="reps"></span><span class="chev">▾</span>' +
+        (o.sets ? '<span class="barraEx"></span>' : '') +
       '</button>' +
       '<div class="body" hidden>' +
         (variants.length > 1 ? '<span class="lbl">Cambiar por</span><div class="chips"></div>' : '') +
         '<ul class="cues"></ul>' +
-        (o.sets ? '<span class="lbl">Series</span><div class="ultima" hidden></div><div class="sets"></div>' : '') +
+        (o.sets ? '<span class="lbl">Series</span><div class="ultima" hidden></div>' +
+                  '<div class="cabSeries"><span class="cs"></span><span class="ck">kg</span>' +
+                  '<span class="cx"></span><span class="cr">reps</span><span class="co"></span></div>' +
+                  '<div class="sets"></div>' : '') +
         '<div class="vid">' +
           '<a class="yt" target="_blank" rel="noopener">▶ Ver cómo se hace</a>' +
         '</div>' +
@@ -344,7 +348,7 @@
     fila.innerHTML =
       '<span class="sn"></span>' +
       '<input class="kg" type="text" inputmode="decimal" autocomplete="off" placeholder="—">' +
-      '<span class="u">kg ×</span>' +
+      '<span class="u">×</span>' +
       '<input class="rp" type="text" inputmode="numeric" autocomplete="off" placeholder="—">' +
       '<button class="ok" type="button" aria-pressed="false">✓</button>';
 
@@ -418,10 +422,13 @@
         }
       }
     });
-    var todas = filas.length > 0 && filas.every(function(f){
+    var hechas = filas.filter(function(f){
       return f.querySelector(".ok").getAttribute("aria-pressed") === "true";
-    });
+    }).length;
+    var todas = filas.length > 0 && hechas === filas.length;
     el.classList.toggle("done", todas);
+    var barra = el.querySelector(".barraEx");
+    if(barra) barra.style.width = filas.length ? (hechas / filas.length * 100) + "%" : "0";
   }
 
   /* Marcas del dia anterior con este movimiento, encima de las series.
@@ -491,7 +498,9 @@
     var host = $(target);
     host.innerHTML = "";
     arr.forEach(function(a, i){
-      host.appendChild(card({badge:String(i+1), slot:i, day:"d1", n:a.n, q:a.q, c:a.c, reps:a.reps, sets:0}));
+      var el = card({badge:String(i+1), slot:i, day:"d1", n:a.n, q:a.q, c:a.c, reps:a.reps, sets:0});
+      el.classList.add("cal");
+      host.appendChild(el);
     });
   }
 
@@ -934,11 +943,26 @@
 
   /* ----------------------------------------------------------- cronometro */
 
-  var lens = [60,90,120], li = 1, left = 90, tick = null;
+  var lens = [60,90,120], li = 1, left = 90, tick = null, total = 90;
   var clock = $("clock"), startB = $("tStart"), setB = $("tSet");
+  var barraD = document.createElement("span");
+  barraD.className = "barraDesc";
+  document.querySelector(".marcador").appendChild(barraD);
+  function pintarBarra(){
+    barraD.classList.remove("fin");
+    barraD.style.width = total ? (left / total * 100) + "%" : "0";
+  }
   function fmt(s){ return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); }
   function paintClock(){ clock.textContent = fmt(left); }
-  function stopTimer(){ if(tick) clearInterval(tick); tick = null; clock.classList.remove("run"); startB.textContent = "Descanso"; }
+  function stopTimer(){
+    if(tick) clearInterval(tick);
+    tick = null;
+    clock.classList.remove("run");
+    startB.textContent = "Descanso";
+    barraD.style.width = "0";
+    barraD.classList.remove("fin");
+    clock.classList.remove("fin");
+  }
   function arrancarDescanso(secs){
     stopTimer();
     if(typeof secs === "number"){
@@ -948,11 +972,23 @@
     } else {
       left = lens[li];
     }
-    paintClock();
+    total = left;
+    paintClock(); pintarBarra();
     clock.classList.add("run"); startB.textContent = "Parar";
     tick = setInterval(function(){
-      left--; paintClock();
-      if(left <= 0){ stopTimer(); left = lens[li]; paintClock(); if(navigator.vibrate) navigator.vibrate([180,90,180]); }
+      left--; paintClock(); pintarBarra();
+      if(left <= 0){
+        stopTimer();
+        /* Verde y lleno un momento: se ve desde la maquina sin acercarse. */
+        barraD.classList.add("fin"); clock.classList.add("fin");
+        clock.textContent = "¡Ya!";
+        vibrar([180,90,180]);
+        setTimeout(function(){
+          barraD.classList.remove("fin"); barraD.style.width = "0";
+          clock.classList.remove("fin");
+          left = lens[li]; paintClock();
+        }, 3000);
+      }
     }, 1000);
   }
   startB.addEventListener("click", function(){ tick ? (stopTimer(), left = lens[li], paintClock()) : arrancarDescanso(); });

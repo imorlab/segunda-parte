@@ -14,9 +14,9 @@
      16, 32 y 48 px para los que no. El color se mantiene al dia con el
      tema elegido desde app.js. -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" href="favicon.svg?v=16" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=16">
-<link rel="manifest" href="site.webmanifest?v=16">
+<link rel="icon" href="favicon.svg?v=17" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=17">
+<link rel="manifest" href="site.webmanifest?v=17">
 <meta name="theme-color" content="#1A1F25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -122,10 +122,19 @@
   h2:first-child{margin-top:0}
 
   .ex{border:1px solid var(--borde);border-radius:14px;background:var(--panel);margin-bottom:10px;overflow:hidden}
+  .ex.cal{background:transparent}
+  .ex.cal .dorsal{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;min-width:31px}
+  .ex.cal .nm b{font-weight:600;font-size:14.5px}
   .ex.open{border-color:var(--borde2)}
   .ex > .head{display:flex;align-items:center;gap:13px;width:100%;padding:13px 14px;background:none;border:0;color:inherit;
     font:inherit;text-align:left;cursor:pointer}
+  .ex > .head{position:relative}
   .ex > .head:focus-visible{outline:2px solid var(--acento);outline-offset:-3px}
+  /* Cuantas series llevas, legible sin abrir la ficha y sin ocupar ancho,
+     que en un movil es lo que falta. */
+  .barraEx{position:absolute;left:0;bottom:0;height:2px;background:var(--acento);
+    width:0;transition:width .3s ease;border-radius:0 2px 2px 0}
+  .ex.done .barraEx{background:var(--ok)}
   .dorsal{font-family:'Archivo Black',sans-serif;font-size:23px;line-height:1;color:var(--texto2);min-width:31px;letter-spacing:-.03em}
   .ex.open .dorsal{color:var(--acento)}
   .ex.done .dorsal{color:var(--ok)}
@@ -162,7 +171,13 @@
     text-align:center;-webkit-text-fill-color:var(--texto)}
   .serie input::placeholder{color:var(--texto2);-webkit-text-fill-color:var(--texto2)}
   .serie.sugerida input{color:var(--texto2);-webkit-text-fill-color:var(--texto2)}
-  .serie .u{font-size:11.5px;color:var(--texto2);white-space:nowrap}
+  .serie .u{font-size:13px;color:var(--texto2);white-space:nowrap}
+  .cabSeries{display:flex;align-items:center;gap:8px;margin-bottom:6px;
+    font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--texto2)}
+  .cabSeries .cs{min-width:15px}
+  .cabSeries .ck,.cabSeries .cr{flex:1;text-align:center}
+  .cabSeries .cx{width:13px}
+  .cabSeries .co{width:42px}
   .serie .ok{flex:none;width:42px;height:40px;border-radius:9px;border:1.5px solid var(--borde2);
     background:transparent;color:var(--texto2);font-size:15px;cursor:pointer}
   .serie .ok[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--sobreOk);font-weight:700}
@@ -307,6 +322,12 @@
   .day.hot .t b{color:var(--acento)}
   .day.ball .t b{color:var(--ok)}
 
+  /* El descanso es lo que mas se mira y era solo un numero. La barra se
+     vacia con el tiempo y se lee de reojo desde la maquina. */
+  .barraDesc{position:absolute;left:0;top:0;height:3px;width:0;background:var(--acento);
+    transition:width 1s linear}
+  .barraDesc.fin{width:100%;background:var(--ok);transition:none}
+  .clock.fin{color:var(--ok)}
   .marcador{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--cabecera);
     border-top:1px solid var(--borde2);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
   .marcador .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:11px}
@@ -460,11 +481,11 @@
 <!-- ?v=N: GitHub Pages sirve estos ficheros con max-age=600, asi que sin
      esto un cambio tarda hasta 10 min en llegar al navegador. Subir el
      numero al desplegar fuerza la descarga. -->
-<script src="config.js?v=16"></script>
-<script src="js/datos.js?v=16"></script>
-<script src="js/juego.js?v=16"></script>
-<script src="js/respaldo.js?v=16"></script>
-<script src="js/nube.js?v=16"></script>
-<script src="js/app.js?v=16"></script>
+<script src="config.js?v=17"></script>
+<script src="js/datos.js?v=17"></script>
+<script src="js/juego.js?v=17"></script>
+<script src="js/respaldo.js?v=17"></script>
+<script src="js/nube.js?v=17"></script>
+<script src="js/app.js?v=17"></script>
 </body>
 </html>
