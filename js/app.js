@@ -732,14 +732,18 @@
          del correo abre Safari, que es otro contenedor, y la sesion no
          llegaria nunca a esta app. */
       p.innerHTML =
-        '<p class="cEstado">Entra con tu correo y tus entrenos te siguen a cualquier ' +
-        'dispositivo. Te llega un código de 6 dígitos: tecléalo aquí sin salir de la app.</p>' +
+        '<p class="cEstado">Entra con tu correo y tus entrenos te siguen a cualquier dispositivo.</p>' +
         '<div class="cForm"><input id="cMail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com">' +
         '<button class="pill" type="button" id="cEnviar">Enviar</button></div>' +
-        '<div class="cForm" id="cPaso2" hidden>' +
-        '<input id="cCodigo" type="text" inputmode="numeric" autocomplete="one-time-code" ' +
-        'maxlength="8" placeholder="123456">' +
-        '<button class="pill" type="button" id="cEntrar">Entrar</button></div>' +
+        '<div id="cPaso2" hidden>' +
+        '<p class="cEstado" style="margin-top:11px">Del correo, lo que te resulte más fácil: ' +
+        'el <b>código de 6 dígitos</b>, o el <b>enlace</b> copiado con una pulsación larga. ' +
+        'No abras el enlace: se abriría en Safari, que en el iPhone es otra app distinta a ésta, ' +
+        'y la sesión se quedaría allí.</p>' +
+        '<div class="cForm">' +
+        '<input id="cCodigo" type="text" inputmode="text" autocomplete="one-time-code" ' +
+        'placeholder="123456 o el enlace">' +
+        '<button class="pill" type="button" id="cEntrar">Entrar</button></div></div>' +
         '<p class="cDato"></p><p class="cAviso" id="cAviso" hidden></p>';
       p.querySelector(".cDato").textContent = guardado + ". Al entrar se suben a tu cuenta.";
 
@@ -755,7 +759,7 @@
         Nube.pedirCodigo(dir).then(function(){
           paso2.hidden = false;
           cod.focus();
-          decir("Código enviado a " + dir + ". Caduca en una hora.");
+          decir("Correo enviado a " + dir + ". Caduca en una hora.");
         }, function(e){ decir("No se ha podido enviar: " + ((e && e.message) || "revisa la configuración.")); });
       });
       p.querySelector("#cEntrar").addEventListener("click", function(){

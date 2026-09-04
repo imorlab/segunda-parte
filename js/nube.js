@@ -200,15 +200,50 @@ var Nube = (function(){
       .then(function(r){ if(r.error) throw r.error; escribir(EMAIL, dir); return true; });
   }
 
-  function verificarCodigo(dir, codigo){
+  /* Acepta el codigo de 6 digitos o el enlace del correo pegado tal cual.
+     Lo segundo evita tener que tocar la plantilla del correo en Supabase,
+     y sobre todo evita ABRIR el enlace: abrirlo lo manda a Safari, que en
+     iOS es otro contenedor, y la sesion se crearia donde no sirve. Como
+     el acceso se pidio desde aqui, el verificador de PKCE esta aqui. */
+  function tokenDelEnlace(txt){
+    var u;
+    try { u = new URL(txt); } catch(e){ return null; }
+    var q = u.searchParams;
+    var h = new URLSearchParams(String(u.hash || "").replace(/^#/, ""));
+    var at = h.get("access_token"), rt = h.get("refresh_token");
+    if(at && rt) return {tipo:"sesion", access_token:at, refresh_token:rt};
+    var code = q.get("code") || h.get("code");
+    if(code) return {tipo:"codigo", code:code};
+    var th = q.get("token_hash") || q.get("token");
+    if(th) return {tipo:"hash", token_hash:th, clase:q.get("type") || "magiclink"};
+    return null;
+  }
+
+  function verificarCodigo(dir, entrada){
     if(!cli) return Promise.reject(new Error("Supabase sin configurar"));
-    return cli.auth.verifyOtp({email:dir, token:String(codigo).replace(/\s+/g, ""), type:"email"})
-      .then(function(r){
-        if(r.error) throw r.error;
-        sesionAuth = r.data.session;
-        escribir(EMAIL, dir);
-        return sincronizar();
-      });
+    var txt = String(entrada || "").trim();
+    var tras = function(r){
+      if(r.error) throw r.error;
+      sesionAuth = (r.data && r.data.session) || sesionAuth;
+      if(!sesionAuth) throw new Error("El enlace ya se había usado o ha caducado.");
+      if(dir) escribir(EMAIL, dir);
+      return sincronizar();
+    };
+
+    var limpio = txt.replace(/\s+/g, "");
+    if(/^\d{4,10}$/.test(limpio)){
+      if(!dir) return Promise.reject(new Error("Falta el correo."));
+      return cli.auth.verifyOtp({email:dir, token:limpio, type:"email"}).then(tras);
+    }
+
+    var t = tokenDelEnlace(txt);
+    if(!t) return Promise.reject(new Error(
+      "Eso no es un código ni un enlace de acceso. Copia el enlace del correo sin abrirlo."));
+    if(t.tipo === "sesion")
+      return cli.auth.setSession({access_token:t.access_token, refresh_token:t.refresh_token}).then(tras);
+    if(t.tipo === "codigo")
+      return cli.auth.exchangeCodeForSession(t.code).then(tras);
+    return cli.auth.verifyOtp({token_hash:t.token_hash, type:t.clase}).then(tras);
   }
 
   function salir(){

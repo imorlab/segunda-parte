@@ -132,8 +132,12 @@ Es el modo en que se usa, y tiene dos trampas de plataforma:
 - **La web app tiene su propio contenedor de almacenamiento, separado de Safari**
   ([WebKit #181849](https://bugs.webkit.org/show_bug.cgi?id=181849), es por diseño). Un
   enlace mágico abierto desde el correo crea la sesión en Safari y la web app no la ve
-  nunca. Por eso el acceso es con **código de 6 dígitos** tecleado dentro de la app.
-  Requiere que la plantilla *Magic Link* de Supabase incluya `{{ .Token }}`.
+  nunca. El acceso se hace **sin salir de la app**: el campo acepta el código de 6
+  dígitos (requiere `{{ .Token }}` en la plantilla *Magic Link*) **o el enlace del correo
+  pegado sin abrirlo**, que funciona con la plantilla por defecto. Se reconocen las
+  cuatro formas: `?token`/`?token_hash`, `?code` y `#access_token`. Como el acceso se
+  pidió desde la app, el verificador de PKCE está en su contenedor y el intercambio
+  funciona.
 - **iOS puede desalojar el origen entero** por falta de espacio, y se va todo de golpe.
   La app pide `navigator.storage.persist()` tras el primer gesto — WebKit usa como
   heurística que la app esté instalada, así que es el caso favorable — pero no es una
