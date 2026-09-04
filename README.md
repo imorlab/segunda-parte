@@ -71,7 +71,7 @@ js/nube.js        Cache local + sincronización con Supabase
 js/app.js         Interfaz
 sql/schema.sql    Esquema de la base de datos
 favicon.svg       Origen del icono; el resto se genera a partir de él
-tools/            Generación y verificación de los iconos
+tools/            Iconos y prueba de regresión de la sincronización
 ```
 
 ## Iconos
@@ -97,6 +97,15 @@ verificador cuenta píxeles de la marca.
 Funciona sin configurar nada: todo se guarda en el navegador. Cada serie se escribe en
 `localStorage` al instante y se encola para subir, así que en un gimnasio sin cobertura
 no se pierde nada y se sincroniza al salir.
+
+**Sincronizar nunca borra.** Lo que hay en el dispositivo y no está en el servidor se
+conserva y se reencola, en vez de reemplazar el estado con lo descargado. Una cola vacía
+no demuestra que lo local haya llegado, y confiar en eso costó un entreno entero. El
+precio es que un borrado hecho en otro dispositivo reaparece; perder una sesión es peor.
+
+```bash
+node tools/prueba-sincronizacion.js   # prueba de regresión de ese caso
+```
 
 Para que el historial te siga entre el móvil y el ordenador:
 

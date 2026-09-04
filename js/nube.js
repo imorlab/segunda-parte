@@ -87,9 +87,12 @@ var Nube = (function(){
 
   /* ---------------------------------------------------------------- cola */
 
+  /* Cada entrada lleva numero propio para poder borrar de la cola justo
+     lo que se subio, sin tocar lo que se haya encolado entretanto. */
   function encolar(tabla, fila){
     var c = leer(COLA, []);
-    c.push({tabla:tabla, fila:fila});
+    var n = c.reduce(function(a, i){ return Math.max(a, i.n || 0); }, 0) + 1;
+    c.push({n:n, tabla:tabla, fila:fila});
     escribir(COLA, c);
   }
 
@@ -103,32 +106,45 @@ var Nube = (function(){
     logro:  "usuario,clave"
   };
 
-  var ultimoError = null;
+  var ultimoError = null, vaciando = false, otraVuelta = false;
 
-  /* Sube lo pendiente en orden. Si algo falla se deja en la cola y se
-     reintenta al proximo arranque; nunca se pierde una serie. */
+  /* Sube lo pendiente. Dos precauciones que costaron datos por no estar:
+
+     - Un solo vaciado a la vez. Se llama al marcar cada serie, asi que en
+       una sesion se solapaban veinte, y cada uno reescribia la cola con
+       la foto que habia leido al empezar, borrando lo encolado mientras.
+     - Al terminar se relee la cola y se quita solo lo que se subio de
+       verdad, en vez de reescribirla entera. */
   function vaciarCola(){
     if(!conectado()) return Promise.resolve(0);
+    if(vaciando){ otraVuelta = true; return Promise.resolve(leer(COLA, []).length); }
     var c = leer(COLA, []);
     if(!c.length){ ultimoError = null; return Promise.resolve(0); }
-    var fallo = null;
+
+    vaciando = true;
+    var subidos = {}, fallo = null;
     return c.reduce(function(cad, item){
-      return cad.then(function(pend){
+      return cad.then(function(){
         var op = CHOQUE[item.tabla] ? {onConflict: CHOQUE[item.tabla]} : undefined;
         return cli.from(item.tabla).upsert(item.fila, op).then(function(r){
           if(r.error) throw r.error;
-          return pend;
+          subidos[item.n] = true;
         }).catch(function(e){
           /* Guardar el motivo: un fallo mudo deja la impresion de que se
              esta guardando cuando no llega nada al servidor. */
           fallo = (e && e.message) ? e.message : "error desconocido";
-          return pend.concat([item]);
         });
       });
-    }, Promise.resolve([])).then(function(pend){
-      escribir(COLA, pend);
-      ultimoError = pend.length ? fallo : null;
-      return pend.length;
+    }, Promise.resolve()).then(function(){
+      var queda = leer(COLA, []).filter(function(it){ return !subidos[it.n]; });
+      escribir(COLA, queda);
+      ultimoError = queda.length ? fallo : null;
+      vaciando = false;
+      if(otraVuelta){ otraVuelta = false; return vaciarCola(); }
+      return queda.length;
+    }).catch(function(){
+      vaciando = false;
+      return leer(COLA, []).length;
     });
   }
 
@@ -151,22 +167,27 @@ var Nube = (function(){
     return n;
   }
 
-  /* Con la cola vacia el servidor manda: reemplazar deja ver los borrados
-     hechos desde otro dispositivo. Si queda algo por subir se funde, para
-     no perder de vista lo que todavia no ha llegado. */
-  function fundir(locales, remotos, clave){
-    var vistos = {};
-    remotos.forEach(function(f){ vistos[f[clave]] = true; });
-    return remotos.concat(locales.filter(function(f){ return !vistos[f[clave]]; }));
+  /* Sincronizar no puede borrar nada: lo local que no este en el servidor
+     se conserva y se reencola para subirlo. Antes se reemplazaba el estado
+     entero cuando la cola estaba vacia, y una cola vacia no demuestra que
+     lo local haya llegado: bastaba con que se hubiera perdido por el
+     camino para que la descarga arrasase el entreno.
+
+     El precio es que un borrado hecho en otro dispositivo reaparece. Se
+     acepta: perder un entreno es mucho peor que ver de mas una serie. */
+  function reconciliar(locales, remotos, clave, tabla){
+    var hay = {};
+    remotos.forEach(function(f){ hay[f[clave]] = true; });
+    var solo = locales.filter(function(f){ return !hay[f[clave]]; });
+    solo.forEach(function(f){ encolar(tabla, f); });
+    return {filas: remotos.concat(solo), reencoladas: solo.length};
   }
 
   function sincronizar(){
     if(!conectado()) return Promise.resolve(estado);
     var uid = sesionAuth.user.id;
     adoptar();
-    var pendientes = 0;
-    return vaciarCola().then(function(n){
-      pendientes = n || 0;
+    return vaciarCola().then(function(){
       return Promise.all([
         cli.from("sesion").select("*").eq("usuario", uid).order("fecha", {ascending:true}),
         cli.from("serie").select("*").eq("usuario", uid).order("hecha_en", {ascending:true}),
@@ -174,13 +195,13 @@ var Nube = (function(){
       ]);
     }).then(function(r){
       if(r[0].error || r[1].error || r[2].error) return estado;
-      var ses = r[0].data || [], ser = r[1].data || [], log = r[2].data || [];
-      estado = pendientes ? {
-        sesiones: fundir(estado.sesiones, ses, "id"),
-        series:   fundir(estado.series,   ser, "id"),
-        logros:   fundir(estado.logros,   log, "clave")
-      } : {sesiones:ses, series:ser, logros:log};
+      var a = reconciliar(estado.sesiones, r[0].data || [], "id", "sesion");
+      var b = reconciliar(estado.series,   r[1].data || [], "id", "serie");
+      var c = reconciliar(estado.logros,   r[2].data || [], "clave", "logro");
+      estado = {sesiones:a.filas, series:b.filas, logros:c.filas};
       guardarCache();
+      /* Lo que faltaba arriba se acaba de reencolar: subirlo ahora. */
+      if(a.reencoladas + b.reencoladas + c.reencoladas) return vaciarCola().then(function(){ return estado; });
       return estado;
     }).catch(function(){ return estado; });
   }
