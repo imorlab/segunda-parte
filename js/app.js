@@ -930,20 +930,191 @@
     temaOpts.forEach(function(o){ o.setAttribute("aria-checked", o.getAttribute("data-t") === t ? "true" : "false"); });
   })();
 
-  /* ------------------------------------------------------------ pestanas */
+  /* ------------------------------------------------------------ navegacion */
 
-  var tabs = [].slice.call(document.querySelectorAll(".tab"));
-  tabs.forEach(function(t){
-    t.addEventListener("click", function(){
-      tabs.forEach(function(o){
-        var sel = o === t;
-        o.setAttribute("aria-selected", sel ? "true" : "false");
-        $(o.getAttribute("aria-controls")).hidden = !sel;
+  /* Cuatro destinos abajo. Lo que antes eran cinco pestanas apretadas
+     arriba: Semana y Progreso pasan a convivir dentro de Perfil, que es
+     donde se consulta, no donde se entrena. */
+  var navs = [].slice.call(document.querySelectorAll(".nb"));
+  navs.forEach(function(b){
+    b.addEventListener("click", function(){
+      var destino = b.getAttribute("data-g");
+      navs.forEach(function(o){
+        if(o === b) o.setAttribute("aria-current", "page"); else o.removeAttribute("aria-current");
+        $(o.getAttribute("data-g")).hidden = o !== b;
       });
+      /* El marcador solo estorba fuera del entreno. */
+      document.querySelector(".marcador").hidden = destino !== "g-entreno";
+      document.body.setAttribute("data-tab", destino);
+      $("tituloTab").textContent = b.querySelector("span").textContent;
       window.scrollTo({top:0, behavior:"smooth"});
+      if(destino === "g-perfil") progreso();
+      if(destino === "g-hist") calendario();
       marcador();
-      if(t.id === "t-prog") progreso();
     });
+  });
+
+  /* Controles segmentados dentro de un grupo. */
+  [].slice.call(document.querySelectorAll(".seg")).forEach(function(seg){
+    var bs = [].slice.call(seg.querySelectorAll(".segb"));
+    bs.forEach(function(t){
+      t.addEventListener("click", function(){
+        bs.forEach(function(o){
+          var sel = o === t;
+          o.setAttribute("aria-selected", sel ? "true" : "false");
+          $(o.getAttribute("aria-controls")).hidden = !sel;
+        });
+        window.scrollTo({top:0, behavior:"smooth"});
+        marcador();
+        if(t.id === "t-prog") progreso();
+      });
+    });
+  });
+
+  /* ------------------------------------------------------------- historial */
+
+  var DS = ["L","M","X","J","V","S","D"];
+  var MESES = ["enero","febrero","marzo","abril","mayo","junio","julio",
+               "agosto","septiembre","octubre","noviembre","diciembre"];
+  var mesVisto = new Date(), diaVisto = null;
+
+  function iso(d){
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") +
+           "-" + String(d.getDate()).padStart(2,"0");
+  }
+
+  function calendario(){
+    var host = $("cal");
+    if(!host) return;
+    var st = Nube.get();
+    var porDia = {};
+    st.sesiones.forEach(function(x){
+      if(!porDia[x.fecha]) porDia[x.fecha] = {n:0, completa:false};
+      porDia[x.fecha].n++;
+      if(x.completada) porDia[x.fecha].completa = true;
+    });
+
+    $("calMes").textContent = MESES[mesVisto.getMonth()] + " " + mesVisto.getFullYear();
+    host.innerHTML = "";
+    DS.forEach(function(d){
+      var e = document.createElement("div");
+      e.className = "calDs"; e.textContent = d;
+      host.appendChild(e);
+    });
+
+    var primero = new Date(mesVisto.getFullYear(), mesVisto.getMonth(), 1);
+    var hueco = (primero.getDay() + 6) % 7;                 // la semana empieza en lunes
+    var dias = new Date(mesVisto.getFullYear(), mesVisto.getMonth() + 1, 0).getDate();
+    var hoy = Juego.hoyISO();
+
+    for(var i = 0; i < hueco; i++){
+      var v = document.createElement("div");
+      v.className = "calD fuera";
+      host.appendChild(v);
+    }
+    for(var d = 1; d <= dias; d++){
+      (function(d){
+        var f = iso(new Date(mesVisto.getFullYear(), mesVisto.getMonth(), d));
+        var info = porDia[f];
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "calD" + (info ? (info.completa ? " con" : " con parcial") : "") +
+                      (f === hoy ? " hoy" : "");
+        b.setAttribute("aria-pressed", f === diaVisto ? "true" : "false");
+        b.setAttribute("aria-label", d + " de " + MESES[mesVisto.getMonth()] +
+                       (info ? ", con entreno" : ""));
+        b.innerHTML = "<span>" + d + "</span>" + (info ? '<span class="pt"></span>' : "");
+        b.addEventListener("click", function(){
+          diaVisto = (diaVisto === f) ? null : f;
+          calendario();
+          if(diaVisto) $("calDia").scrollIntoView({behavior:"smooth", block:"nearest"});
+        });
+        host.appendChild(b);
+      })(d);
+    }
+    detalleDia();
+  }
+
+  /* Que hiciste ese dia, con los pesos tal y como quedaron guardados. */
+  function detalleDia(){
+    var host = $("calDia");
+    host.innerHTML = "";
+    if(!diaVisto){
+      var p = document.createElement("div");
+      p.className = "note";
+      p.style.marginTop = "18px";
+      p.textContent = "Toca un día con punto para ver lo que entrenaste.";
+      host.appendChild(p);
+      return;
+    }
+    var st = Nube.get();
+    var ses = st.sesiones.filter(function(x){ return x.fecha === diaVisto; });
+    var h = document.createElement("h2");
+    h.textContent = diaVisto.split("-").reverse().join("/");
+    host.appendChild(h);
+
+    if(!ses.length){
+      var v = document.createElement("div");
+      v.className = "note";
+      v.textContent = "Ese día no entrenaste.";
+      host.appendChild(v);
+      return;
+    }
+
+    ses.forEach(function(s){
+      var series = st.series.filter(function(x){ return x.sesion === s.id; });
+      var vol = Juego.volumen(series);
+      var sub = document.createElement("p");
+      sub.className = "lead";
+      sub.textContent = (s.dia === "d2" ? "Día 2" : "Día 1") +
+        (s.completada ? " · completada" : " · a medias");
+      host.appendChild(sub);
+
+      var tot = document.createElement("div");
+      tot.className = "dTot";
+      [[series.length, series.length === 1 ? "serie" : "series"],
+       [kg(vol) + " kg", "volumen"],
+       [series.length * 10 + (s.completada ? 50 : 0) + " XP", "ganados"]].forEach(function(c){
+        var d = document.createElement("div");
+        d.innerHTML = "<b></b><i></i>";
+        d.querySelector("b").textContent = c[0];
+        d.querySelector("i").textContent = c[1];
+        tot.appendChild(d);
+      });
+      host.appendChild(tot);
+
+      /* Agrupadas por movimiento, en el orden en que se hicieron. */
+      var grupos = [], indice = {};
+      series.slice().sort(function(a,b){ return String(a.hecha_en).localeCompare(String(b.hecha_en)); })
+        .forEach(function(x){
+          var k = x.ejercicio + "|" + (x.variante || "");
+          if(indice[k] == null){ indice[k] = grupos.length; grupos.push({nombre:nombreMarca(x), filas:[]}); }
+          grupos[indice[k]].filas.push(x);
+        });
+      grupos.forEach(function(g){
+        var d = document.createElement("div");
+        d.className = "dEj";
+        d.innerHTML = "<b></b><div class='dS'></div>";
+        d.querySelector("b").textContent = g.nombre;
+        var caja = d.querySelector(".dS");
+        g.filas.sort(function(a,b){ return a.n_serie - b.n_serie; }).forEach(function(x){
+          var e = document.createElement("span");
+          e.textContent = x.peso != null ? kg(x.peso) + "×" + (x.reps != null ? x.reps : "?")
+                                         : (x.reps != null ? x.reps + " reps" : "hecha");
+          caja.appendChild(e);
+        });
+        host.appendChild(d);
+      });
+    });
+  }
+
+  $("calAtras").addEventListener("click", function(){
+    mesVisto = new Date(mesVisto.getFullYear(), mesVisto.getMonth() - 1, 1);
+    calendario();
+  });
+  $("calAlante").addEventListener("click", function(){
+    mesVisto = new Date(mesVisto.getFullYear(), mesVisto.getMonth() + 1, 1);
+    calendario();
   });
 
   /* ----------------------------------------------------------- cronometro */
@@ -1019,6 +1190,7 @@
     Nube.pedirPersistencia();   // por si ya estaba concedida de antes
   })();
 
+  document.body.setAttribute("data-tab", "g-entreno");
   Nube.alCambiar(function(){ hud(); marcador(); });
   revisarSesiones();
   render();

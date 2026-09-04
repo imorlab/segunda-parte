@@ -15,6 +15,11 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
 - **Día 2** — cambia según la semana:
   - *Hay partido*: tren superior y core. Nada de piernas pesadas antes de jugar.
   - *Sin partido*: entra bisagra de cadera, trabajo unilateral y 8–10 min de cardio.
+- **Navegación inferior** de cuatro destinos, al alcance del pulgar y respetando el
+  indicador de inicio del iPhone: Entreno (Día 1 / Día 2), Historial, Movilidad y Perfil
+  (Progreso / Semana). La portada solo aparece en Entreno; el resto usa cabecera compacta.
+- **Historial con calendario**: los días con entreno llevan punto; al tocar uno se ven las
+  sesiones de ese día con sus series, pesos, volumen y XP.
 - **Interruptor de partido** en la cabecera: recalcula ejercicios, avisos y la semana.
 - **Sustitutos** por ejercicio (3 por ficha) con sus propias claves técnicas y su vídeo.
   La elección se recuerda por nombre, no por posición: la eliges una vez.
