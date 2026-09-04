@@ -728,50 +728,47 @@
         "Guardando solo en este navegador. Rellena config.js para sincronizar.";
       p.querySelector(".cDato").textContent = guardado;
     } else {
-      /* Dos pasos, con el codigo tecleado aqui dentro: en iOS el enlace
-         del correo abre Safari, que es otro contenedor, y la sesion no
-         llegaria nunca a esta app. */
       p.innerHTML =
         '<p class="cEstado">Entra con tu correo y tus entrenos te siguen a cualquier dispositivo.</p>' +
-        '<div class="cForm"><input id="cMail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com">' +
-        '<button class="pill" type="button" id="cEnviar">Enviar</button></div>' +
-        '<div id="cPaso2" hidden>' +
-        '<p class="cEstado" style="margin-top:11px">Del correo, lo que te resulte más fácil: ' +
-        'el <b>código de 6 dígitos</b>, o el <b>enlace</b> copiado con una pulsación larga. ' +
-        'No abras el enlace: se abriría en Safari, que en el iPhone es otra app distinta a ésta, ' +
-        'y la sesión se quedaría allí.</p>' +
-        '<div class="cForm">' +
-        '<input id="cCodigo" type="text" inputmode="text" autocomplete="one-time-code" ' +
-        'placeholder="123456 o el enlace">' +
-        '<button class="pill" type="button" id="cEntrar">Entrar</button></div></div>' +
-        '<p class="cDato"></p><p class="cAviso" id="cAviso" hidden></p>';
+        '<div class="cForm"><input id="cMail" type="email" inputmode="email" ' +
+        'autocomplete="username" placeholder="tu@correo.com"></div>' +
+        '<div class="cForm"><input id="cClave" type="password" autocomplete="current-password" ' +
+        'placeholder="contraseña">' +
+        '<button class="pill" type="button" id="cEntrar">Entrar</button></div>' +
+        '<p class="cDato"></p>' +
+        '<button class="pill" type="button" id="cNueva">Crear cuenta</button>' +
+        '<p class="cAviso" id="cAviso" hidden></p>';
       p.querySelector(".cDato").textContent = guardado + ". Al entrar se suben a tu cuenta.";
 
-      var mail = p.querySelector("#cMail"), cod = p.querySelector("#cCodigo"),
-          paso2 = p.querySelector("#cPaso2"), av = p.querySelector("#cAviso");
+      var mail = p.querySelector("#cMail"), clave = p.querySelector("#cClave"),
+          av = p.querySelector("#cAviso");
       if(Nube.email()) mail.value = Nube.email();
       var decir = function(t){ av.hidden = false; av.textContent = t; };
+      var datos = function(){
+        var d = mail.value.trim(), c = clave.value;
+        if(!d){ decir("Escribe tu correo."); return null; }
+        if(!c){ decir("Escribe la contraseña."); return null; }
+        return {d:d, c:c};
+      };
 
-      p.querySelector("#cEnviar").addEventListener("click", function(){
-        var dir = mail.value.trim();
-        if(!dir) return decir("Escribe tu correo.");
-        decir("Enviando…");
-        Nube.pedirCodigo(dir).then(function(){
-          paso2.hidden = false;
-          cod.focus();
-          decir("Correo enviado a " + dir + ". Caduca en una hora.");
-        }, function(e){ decir("No se ha podido enviar: " + ((e && e.message) || "revisa la configuración.")); });
-      });
       p.querySelector("#cEntrar").addEventListener("click", function(){
-        var dir = mail.value.trim(), c = cod.value.trim();
-        if(!c) return decir("Escribe el código del correo.");
-        decir("Comprobando…");
-        Nube.verificarCodigo(dir, c).then(function(){
-          render();
-        }, function(e){ decir("No ha entrado: " + ((e && e.message) || "código incorrecto o caducado.")); });
+        var v = datos(); if(!v) return;
+        decir("Entrando…");
+        Nube.entrar(v.d, v.c).then(render, function(e){
+          decir("No ha entrado: " + ((e && e.message) || "correo o contraseña incorrectos."));
+        });
       });
-      cod.addEventListener("keydown", function(e){ if(e.key === "Enter") p.querySelector("#cEntrar").click(); });
-      mail.addEventListener("keydown", function(e){ if(e.key === "Enter") p.querySelector("#cEnviar").click(); });
+      p.querySelector("#cNueva").addEventListener("click", function(){
+        var v = datos(); if(!v) return;
+        if(v.c.length < 6) return decir("La contraseña necesita al menos 6 caracteres.");
+        decir("Creando cuenta…");
+        Nube.registrar(v.d, v.c).then(render, function(e){
+          decir((e && e.message) || "No se ha podido crear la cuenta.");
+        });
+      });
+      clave.addEventListener("keydown", function(e){
+        if(e.key === "Enter") p.querySelector("#cEntrar").click();
+      });
     }
 
     var err = Nube.ultimoError() || Nube.errorDisco();

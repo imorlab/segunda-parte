@@ -190,60 +190,32 @@ var Nube = (function(){
     }).catch(function(){ return modo(); });
   }
 
-  /* En iOS una web app de la pantalla de inicio tiene su propio contenedor
-     de almacenamiento, separado de Safari. El enlace del correo abre
-     Safari, crea la sesion alli y esta app no la ve nunca; con PKCE ademas
-     falla, porque el verificador se quedo aqui. De ahi el codigo. */
-  function pedirCodigo(dir){
+  /* Correo y contrasena. Se descarto el enlace magico porque en iOS una
+     web app de la pantalla de inicio tiene su propio contenedor de
+     almacenamiento, separado de Safari: el enlace del correo abre Safari,
+     la sesion se crea alli y esta app no la ve nunca. */
+  function entrar(dir, clave){
     if(!cli) return Promise.reject(new Error("Supabase sin configurar"));
-    return cli.auth.signInWithOtp({email: dir, options:{shouldCreateUser:true}})
-      .then(function(r){ if(r.error) throw r.error; escribir(EMAIL, dir); return true; });
-  }
-
-  /* Acepta el codigo de 6 digitos o el enlace del correo pegado tal cual.
-     Lo segundo evita tener que tocar la plantilla del correo en Supabase,
-     y sobre todo evita ABRIR el enlace: abrirlo lo manda a Safari, que en
-     iOS es otro contenedor, y la sesion se crearia donde no sirve. Como
-     el acceso se pidio desde aqui, el verificador de PKCE esta aqui. */
-  function tokenDelEnlace(txt){
-    var u;
-    try { u = new URL(txt); } catch(e){ return null; }
-    var q = u.searchParams;
-    var h = new URLSearchParams(String(u.hash || "").replace(/^#/, ""));
-    var at = h.get("access_token"), rt = h.get("refresh_token");
-    if(at && rt) return {tipo:"sesion", access_token:at, refresh_token:rt};
-    var code = q.get("code") || h.get("code");
-    if(code) return {tipo:"codigo", code:code};
-    var th = q.get("token_hash") || q.get("token");
-    if(th) return {tipo:"hash", token_hash:th, clase:q.get("type") || "magiclink"};
-    return null;
-  }
-
-  function verificarCodigo(dir, entrada){
-    if(!cli) return Promise.reject(new Error("Supabase sin configurar"));
-    var txt = String(entrada || "").trim();
-    var tras = function(r){
+    return cli.auth.signInWithPassword({email:dir, password:clave}).then(function(r){
       if(r.error) throw r.error;
-      sesionAuth = (r.data && r.data.session) || sesionAuth;
-      if(!sesionAuth) throw new Error("El enlace ya se había usado o ha caducado.");
-      if(dir) escribir(EMAIL, dir);
+      sesionAuth = r.data.session;
+      escribir(EMAIL, dir);
       return sincronizar();
-    };
+    });
+  }
 
-    var limpio = txt.replace(/\s+/g, "");
-    if(/^\d{4,10}$/.test(limpio)){
-      if(!dir) return Promise.reject(new Error("Falta el correo."));
-      return cli.auth.verifyOtp({email:dir, token:limpio, type:"email"}).then(tras);
-    }
-
-    var t = tokenDelEnlace(txt);
-    if(!t) return Promise.reject(new Error(
-      "Eso no es un código ni un enlace de acceso. Copia el enlace del correo sin abrirlo."));
-    if(t.tipo === "sesion")
-      return cli.auth.setSession({access_token:t.access_token, refresh_token:t.refresh_token}).then(tras);
-    if(t.tipo === "codigo")
-      return cli.auth.exchangeCodeForSession(t.code).then(tras);
-    return cli.auth.verifyOtp({token_hash:t.token_hash, type:t.clase}).then(tras);
+  function registrar(dir, clave){
+    if(!cli) return Promise.reject(new Error("Supabase sin configurar"));
+    return cli.auth.signUp({email:dir, password:clave}).then(function(r){
+      if(r.error) throw r.error;
+      sesionAuth = r.data.session;
+      escribir(EMAIL, dir);
+      /* Sin sesion, Supabase esta pidiendo confirmar el correo. */
+      if(!sesionAuth) throw new Error(
+        "Cuenta creada, pero el proyecto exige confirmar el correo. " +
+        "Desactiva «Confirm email» en Supabase y vuelve a entrar.");
+      return sincronizar();
+    });
   }
 
   function salir(){
@@ -534,7 +506,7 @@ var Nube = (function(){
   }
 
   return {
-    init:init, pedirCodigo:pedirCodigo, verificarCodigo:verificarCodigo,
+    init:init, entrar:entrar, registrar:registrar,
     salir:salir, sincronizar:sincronizar,
     modo:modo, conectado:conectado, configurado:configurado, email:email,
     alCambiar:alCambiar,

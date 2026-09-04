@@ -130,14 +130,11 @@ node tools/prueba-sincronizacion.js   # 7 escenarios que costaron datos
 Es el modo en que se usa, y tiene dos trampas de plataforma:
 
 - **La web app tiene su propio contenedor de almacenamiento, separado de Safari**
-  ([WebKit #181849](https://bugs.webkit.org/show_bug.cgi?id=181849), es por diseño). Un
-  enlace mágico abierto desde el correo crea la sesión en Safari y la web app no la ve
-  nunca. El acceso se hace **sin salir de la app**: el campo acepta el código de 6
-  dígitos (requiere `{{ .Token }}` en la plantilla *Magic Link*) **o el enlace del correo
-  pegado sin abrirlo**, que funciona con la plantilla por defecto. Se reconocen las
-  cuatro formas: `?token`/`?token_hash`, `?code` y `#access_token`. Como el acceso se
-  pidió desde la app, el verificador de PKCE está en su contenedor y el intercambio
-  funciona.
+  ([WebKit #181849](https://bugs.webkit.org/show_bug.cgi?id=181849), es por diseño). Por
+  eso el acceso es con **correo y contraseña**: cualquier login por enlace crea la sesión
+  en Safari, donde la web app no la ve nunca. Requiere *Confirm email* desactivado en
+  Supabase (Authentication → Sign In / Providers → Email), o el registro se queda
+  esperando un correo de confirmación que vuelve a abrirse en Safari.
 - **iOS puede desalojar el origen entero** por falta de espacio, y se va todo de golpe.
   La app pide `navigator.storage.persist()` tras el primer gesto — WebKit usa como
   heurística que la app esté instalada, así que es el caso favorable — pero no es una
@@ -149,15 +146,10 @@ Para que el historial te siga entre el móvil y el ordenador:
 2. Pega `sql/schema.sql` en el **SQL Editor** y ejecútalo. Crea las tablas, las políticas
    RLS y las vistas.
 3. En **Project Settings → API** copia la *URL* y la clave *anon* a `config.js`.
-4. En **Authentication → URL Configuration**:
-   - *Site URL* → `https://imorlab.github.io/segunda-parte/`
-   - *Redirect URLs* → `https://imorlab.github.io/segunda-parte/` y `http://localhost:4173/**`
-
-   Los dos, no solo el segundo. El *Site URL* es el destino de reserva: si el enlace de
-   acceso pide una dirección que no está en la lista blanca, Supabase lo manda ahí, y por
-   defecto vale `http://localhost:3000` — con lo que el enlace acaba en un
-   `ERR_CONNECTION_REFUSED` en lugar de en la app.
-5. Entra desde la pestaña **Progreso** con tu correo. Recibes un enlace, sin contraseña.
+4. En **Authentication → Sign In / Providers → Email**, desactiva *Confirm email*. Sin
+   eso el registro exige confirmar por correo, y ese enlace se abre en Safari, que en iOS
+   es otro contenedor: la sesión se crearía donde la app no la ve.
+5. Entra desde la pestaña **Progreso** con tu correo y una contraseña.
 
 La clave *anon* es pública por diseño y puede vivir en el repositorio: solo permite lo
 que dejen las políticas RLS, que limitan cada fila a su dueño.
