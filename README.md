@@ -18,10 +18,11 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
 - **Navegación inferior** de cuatro destinos, al alcance del pulgar: Entreno (Día 1 /
   Día 2), Historial, Movilidad y Perfil (Progreso / Semana). La portada solo aparece en
   Entreno; el resto usa cabecera compacta.
-- **Armazón de app**: columna a `100dvh` con el contenido desplazándose en medio y las
-  barras como parte del reparto, en vez de `position:fixed` — que en una web app de iOS
-  no siempre se ancla al viewport y dejaba la barra flotando cuando el contenido era
-  corto. Los `env(safe-area-inset-*)` mantienen el contenido fuera del notch y del
+- **Armazón de app**: el `body` clavado al viewport con `position:fixed; inset:0` y
+  repartido en columna, con el contenido desplazándose en medio y las barras arriba y
+  abajo. Ni `vh` ni `dvh`: en una web app de iOS con `viewport-fit=cover`, `100dvh` puede
+  dejarse fuera el área segura inferior y la barra queda flotando sobre un hueco de
+  fondo. Los `env(safe-area-inset-*)` mantienen el contenido fuera del notch y del
   indicador de inicio.
 - **Historial con calendario**: los días con entreno llevan punto; al tocar uno se ven las
   sesiones de ese día con sus series, pesos, volumen y XP.

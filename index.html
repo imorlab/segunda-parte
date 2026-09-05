@@ -14,9 +14,9 @@
      16, 32 y 48 px para los que no. El color se mantiene al dia con el
      tema elegido desde app.js. -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" href="favicon.svg?v=21" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=21">
-<link rel="manifest" href="site.webmanifest?v=21">
+<link rel="icon" href="favicon.svg?v=22" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=22">
+<link rel="manifest" href="site.webmanifest?v=22">
 <meta name="theme-color" content="#1A1F25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,19 +60,23 @@
 
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
-  /* Columna a la altura de la pantalla, con el contenido desplazandose en
-     medio y las barras como parte del reparto. En una web app de iOS un
-     position:fixed no siempre se ancla al viewport, y la barra inferior
-     acababa flotando detras del contenido corto. Asi no puede pasar.
-     dvh y no vh: vh no cuenta la barra dinamica de iOS. */
+  /* Armazon de app: el propio body clavado al viewport y repartido en
+     columna, con el contenido desplazandose en medio y las barras arriba
+     y abajo del reparto.
+
+     Ni vh ni dvh: en una web app de iOS con viewport-fit=cover, 100dvh
+     puede dejarse fuera el area segura inferior, y entonces el body
+     termina antes que la pantalla y la barra queda flotando con un hueco
+     de fondo debajo. inset:0 cubre el viewport entero, insets incluidos,
+     sin depender de como interprete cada version esas unidades. */
   html{height:100%}
   body{
+    position:fixed; inset:0;
     background:var(--fondo); color:var(--texto);
     font-family:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
     font-size:16px; line-height:1.45;
     -webkit-font-smoothing:antialiased;
-    display:flex; flex-direction:column;
-    height:100vh; height:100dvh; overflow:hidden;
+    display:flex; flex-direction:column; overflow:hidden;
   }
   /* El contenido es lo unico que se desplaza. */
   .scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
@@ -581,11 +585,11 @@
 <!-- ?v=N: GitHub Pages sirve estos ficheros con max-age=600, asi que sin
      esto un cambio tarda hasta 10 min en llegar al navegador. Subir el
      numero al desplegar fuerza la descarga. -->
-<script src="config.js?v=21"></script>
-<script src="js/datos.js?v=21"></script>
-<script src="js/juego.js?v=21"></script>
-<script src="js/respaldo.js?v=21"></script>
-<script src="js/nube.js?v=21"></script>
-<script src="js/app.js?v=21"></script>
+<script src="config.js?v=22"></script>
+<script src="js/datos.js?v=22"></script>
+<script src="js/juego.js?v=22"></script>
+<script src="js/respaldo.js?v=22"></script>
+<script src="js/nube.js?v=22"></script>
+<script src="js/app.js?v=22"></script>
 </body>
 </html>
