@@ -947,7 +947,7 @@
       document.querySelector(".marcador").hidden = destino !== "g-entreno";
       document.body.setAttribute("data-tab", destino);
       $("tituloTab").textContent = b.querySelector("span").textContent;
-      window.scrollTo({top:0, behavior:"smooth"});
+      document.querySelector(".scroll").scrollTo({top:0, behavior:"smooth"});
       if(destino === "g-perfil") progreso();
       if(destino === "g-hist") calendario();
       marcador();
@@ -964,7 +964,7 @@
           o.setAttribute("aria-selected", sel ? "true" : "false");
           $(o.getAttribute("aria-controls")).hidden = !sel;
         });
-        window.scrollTo({top:0, behavior:"smooth"});
+        document.querySelector(".scroll").scrollTo({top:0, behavior:"smooth"});
         marcador();
         if(t.id === "t-prog") progreso();
       });

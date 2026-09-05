@@ -15,9 +15,14 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
 - **Día 2** — cambia según la semana:
   - *Hay partido*: tren superior y core. Nada de piernas pesadas antes de jugar.
   - *Sin partido*: entra bisagra de cadera, trabajo unilateral y 8–10 min de cardio.
-- **Navegación inferior** de cuatro destinos, al alcance del pulgar y respetando el
-  indicador de inicio del iPhone: Entreno (Día 1 / Día 2), Historial, Movilidad y Perfil
-  (Progreso / Semana). La portada solo aparece en Entreno; el resto usa cabecera compacta.
+- **Navegación inferior** de cuatro destinos, al alcance del pulgar: Entreno (Día 1 /
+  Día 2), Historial, Movilidad y Perfil (Progreso / Semana). La portada solo aparece en
+  Entreno; el resto usa cabecera compacta.
+- **Armazón de app**: columna a `100dvh` con el contenido desplazándose en medio y las
+  barras como parte del reparto, en vez de `position:fixed` — que en una web app de iOS
+  no siempre se ancla al viewport y dejaba la barra flotando cuando el contenido era
+  corto. Los `env(safe-area-inset-*)` mantienen el contenido fuera del notch y del
+  indicador de inicio.
 - **Historial con calendario**: los días con entreno llevan punto; al tocar uno se ven las
   sesiones de ese día con sus series, pesos, volumen y XP.
 - **Interruptor de partido** en la cabecera: recalcula ejercicios, avisos y la semana.
