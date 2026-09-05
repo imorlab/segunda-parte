@@ -14,9 +14,9 @@
      16, 32 y 48 px para los que no. El color se mantiene al dia con el
      tema elegido desde app.js. -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" href="favicon.svg?v=22" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=22">
-<link rel="manifest" href="site.webmanifest?v=22">
+<link rel="icon" href="favicon.svg?v=23" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=23">
+<link rel="manifest" href="site.webmanifest?v=23">
 <meta name="theme-color" content="#1A1F25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -585,11 +585,37 @@
 <!-- ?v=N: GitHub Pages sirve estos ficheros con max-age=600, asi que sin
      esto un cambio tarda hasta 10 min en llegar al navegador. Subir el
      numero al desplegar fuerza la descarga. -->
-<script src="config.js?v=22"></script>
-<script src="js/datos.js?v=22"></script>
-<script src="js/juego.js?v=22"></script>
-<script src="js/respaldo.js?v=22"></script>
-<script src="js/nube.js?v=22"></script>
-<script src="js/app.js?v=22"></script>
+<script src="config.js?v=23"></script>
+<script src="js/datos.js?v=23"></script>
+<script src="js/juego.js?v=23"></script>
+<script src="js/respaldo.js?v=23"></script>
+<script src="js/nube.js?v=23"></script>
+<script src="js/app.js?v=23"></script>
+
+<script>
+/* Registro del service worker. La comprobacion al volver a primer plano
+   es lo que hace que la web app del icono se entere de una version nueva:
+   ahi dentro no hay recarga manual posible. */
+(function(){
+  if(!("serviceWorker" in navigator)) return;
+  var habiaControl = !!navigator.serviceWorker.controller;
+  var recargado = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    /* Solo si ya habia una version corriendo: en la primera instalacion
+       el cambio de control es normal y recargar seria un parpadeo feo. */
+    if(!habiaControl || recargado) return;
+    recargado = true;
+    location.reload();
+  });
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").then(function(reg){
+      reg.update();
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "visible") reg.update();
+      });
+    }, function(){});
+  });
+})();
+</script>
 </body>
 </html>

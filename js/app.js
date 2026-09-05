@@ -832,6 +832,27 @@
     var decir = function(t){ avisoRespaldo = t; av.hidden = false; av.textContent = t; };
     if(avisoRespaldo){ av.hidden = false; av.textContent = avisoRespaldo; }
 
+    /* Version a la vista: en la web app del icono no hay forma de saber
+       que build se esta ejecutando, y eso convirtio un problema de cache
+       en varios dias de diagnostico a ciegas. */
+    var v = document.createElement("p");
+    v.className = "cDato";
+    v.id = "rVersion";
+    v.textContent = "Versión " + (window.__VER || "?");
+    p.appendChild(v);
+    if(navigator.serviceWorker && navigator.serviceWorker.controller){
+      navigator.serviceWorker.addEventListener("message", function(e){
+        if(e.data && e.data.version){
+          window.__VER = e.data.version;
+          var n = document.getElementById("rVersion");
+          if(n) n.textContent = "Versión " + e.data.version;
+        }
+      });
+      navigator.serviceWorker.controller.postMessage("version");
+    } else {
+      v.textContent = "Versión " + (window.__VER || "sin service worker");
+    }
+
     var per = Nube.persistido();
     p.querySelector("#rPersist").textContent = per === true
       ? "Almacenamiento marcado como persistente: el sistema no lo borrará por falta de espacio."

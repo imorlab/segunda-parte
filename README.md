@@ -178,9 +178,26 @@ que dejen las políticas RLS, que limitan cada fila a su dueño.
 python3 -m http.server 4173
 ```
 
-Al desplegar un cambio en cualquier `.js`, sube el `?v=N` de los `<script>` de
-`index.html`. GitHub Pages los sirve con `max-age=600` y sin eso el navegador
-seguiría usando la versión anterior hasta diez minutos.
+Al desplegar cualquier cambio, sube la versión — en `index.html` y en `sw.js` a la vez:
+
+```bash
+bash tools/version.sh 24
+```
+
+Olvidarlo hace que el navegador siga sirviendo el fichero viejo y el cambio parezca no
+haberse aplicado. El número se ve dentro de la app, en **Perfil → Cuenta**, que es la
+única forma de saber qué build corre la web app del icono.
+
+### Service worker
+
+La web app instalada tiene su propia caché HTTP, distinta a la de Safari, y no hay forma
+de recargarla a la fuerza desde dentro: se quedaba clavada en una versión durante días.
+`sw.js` la controla con estrategia **red primero** — siempre intenta la versión de
+arriba, y la caché solo entra si no hay red, así una caché mal poblada no puede dejar la
+app atascada. Comprueba si hay versión nueva cada vez que la app vuelve a primer plano.
+
+De paso resuelve el gimnasio sin cobertura: con el servidor caído la app arranca entera y
+se pueden registrar series, que quedan en cola hasta que vuelva la red.
 
 ## Vídeos
 
