@@ -8,7 +8,7 @@
    cache solo entra si no hay red. Asi una cache mal poblada nunca deja la
    app atascada, que es el riesgo real de un service worker. */
 
-var VERSION = "sp-26";
+var VERSION = "sp-27";
 var CACHE = "segunda-parte-" + VERSION;
 var CONCHA = [
   "./", "./index.html", "./config.js",

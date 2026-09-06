@@ -990,9 +990,13 @@
     if(!nav) return;
     var hn = nav.offsetHeight;
     var hm = (mar && !mar.hidden) ? mar.offsetHeight : 0;
+    var cab = document.querySelector("header");
+    var hc = cab ? cab.offsetHeight : 0;
     var raiz = document.documentElement.style;
     raiz.setProperty("--altoNav", hn + "px");
     raiz.setProperty("--altoBarras", (hn + hm) + "px");
+    /* innerHeight y no 100vh: en iOS vh no coincide con lo que se ve. */
+    raiz.setProperty("--altoUtil", Math.max(240, window.innerHeight - hn - hm - hc) + "px");
   }
   window.addEventListener("resize", ajustarBarras);
   window.addEventListener("orientationchange", function(){ setTimeout(ajustarBarras, 250); });
