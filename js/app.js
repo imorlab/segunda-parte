@@ -853,6 +853,34 @@
       v.textContent = "Versión " + (window.__VER || "sin service worker");
     }
 
+    /* Salida de emergencia: durante las pruebas el service worker se quedo
+       sirviendo un fichero viejo pese a ir a red primero, y sin barra de
+       direcciones no hay forma de forzar nada desde la web app. */
+    var fz = document.createElement("button");
+    fz.className = "pill";
+    fz.type = "button";
+    fz.style.marginTop = "10px";
+    fz.textContent = "Forzar actualización";
+    fz.addEventListener("click", function(){
+      fz.textContent = "Actualizando…";
+      var tareas = [];
+      if(navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
+        tareas.push(navigator.serviceWorker.getRegistrations()
+          .then(function(rs){ return Promise.all(rs.map(function(r){ return r.unregister(); })); })
+          .catch(function(){}));
+      }
+      if(window.caches && caches.keys){
+        tareas.push(caches.keys()
+          .then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); })
+          .catch(function(){}));
+      }
+      /* No toca localStorage: los entrenos se quedan donde estan. */
+      Promise.all(tareas).then(function(){
+        location.replace(location.pathname + "?f=" + Date.now());
+      });
+    });
+    p.appendChild(fz);
+
     var per = Nube.persistido();
     p.querySelector("#rPersist").textContent = per === true
       ? "Almacenamiento marcado como persistente: el sistema no lo borrará por falta de espacio."
@@ -953,6 +981,22 @@
 
   /* ------------------------------------------------------------ navegacion */
 
+  /* Alto real de las barras fijas, publicado como variable CSS. Fijarlo a
+     ojo se solapaba: cambia con el area segura del modelo y con el tamano
+     de letra del sistema. */
+  function ajustarBarras(){
+    var nav = document.querySelector(".barraNav");
+    var mar = document.querySelector(".marcador");
+    if(!nav) return;
+    var hn = nav.offsetHeight;
+    var hm = (mar && !mar.hidden) ? mar.offsetHeight : 0;
+    var raiz = document.documentElement.style;
+    raiz.setProperty("--altoNav", hn + "px");
+    raiz.setProperty("--altoBarras", (hn + hm) + "px");
+  }
+  window.addEventListener("resize", ajustarBarras);
+  window.addEventListener("orientationchange", function(){ setTimeout(ajustarBarras, 250); });
+
   /* Cuatro destinos abajo. Lo que antes eran cinco pestanas apretadas
      arriba: Semana y Progreso pasan a convivir dentro de Perfil, que es
      donde se consulta, no donde se entrena. */
@@ -968,7 +1012,8 @@
       document.querySelector(".marcador").hidden = destino !== "g-entreno";
       document.body.setAttribute("data-tab", destino);
       $("tituloTab").textContent = b.querySelector("span").textContent;
-      document.querySelector(".scroll").scrollTo({top:0, behavior:"smooth"});
+      ajustarBarras();
+      window.scrollTo({top:0, behavior:"smooth"});
       if(destino === "g-perfil") progreso();
       if(destino === "g-hist") calendario();
       marcador();
@@ -985,7 +1030,7 @@
           o.setAttribute("aria-selected", sel ? "true" : "false");
           $(o.getAttribute("aria-controls")).hidden = !sel;
         });
-        document.querySelector(".scroll").scrollTo({top:0, behavior:"smooth"});
+        window.scrollTo({top:0, behavior:"smooth"});
         marcador();
         if(t.id === "t-prog") progreso();
       });
@@ -1212,6 +1257,10 @@
   })();
 
   document.body.setAttribute("data-tab", "g-entreno");
+  ajustarBarras();
+  /* Otra pasada con las fuentes ya cargadas: cambian la altura. */
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(ajustarBarras);
+  setTimeout(ajustarBarras, 600);
   Nube.alCambiar(function(){ hud(); marcador(); });
   revisarSesiones();
   render();
