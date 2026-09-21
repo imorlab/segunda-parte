@@ -176,22 +176,29 @@ var EX = {
 };
 
 var PLAN = {
+  /* Semana real: lunes gimnasio, martes partido, jueves gimnasio.
+     El Dia 1 cae la VISPERA del partido, asi que no lleva piernas: unas
+     sentadillas el lunes se pagan el martes en la pista. Toda la carga de
+     pierna se va al Dia 2, que queda dos dias despues del partido y cinco
+     antes del siguiente, que es el hueco bueno de la semana. */
   conPartido: {
-    d1: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
-         {id:"04",sets:3,reps:"3 × 8–12"},{id:"05",sets:2,reps:"2 × 10–12"},
+    d1: [{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
+         {id:"06",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
          {id:"12",sets:3,reps:"3 × 12–15"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
-    d2: [{id:"06",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
-         {id:"02",sets:3,reps:"3 × 8–12",nota:"Variante plana o en máquina"},
-         {id:"03",sets:2,reps:"2 × 10–12"},{id:"07",sets:2,reps:"2 × 30–40 s"},{id:"08",sets:2,reps:"2 × 10 /lado"}],
-    eyebrow:"2 sesiones · 1 partido",
-    sub:"El gimnasio construye piernas y espalda. El fútbol sala es el finisher.",
-    leadD1:"Día fuerte. Fuerza de verdad dejando 2–3 repeticiones en el depósito (RIR 2–3). Descanso 2–3 min en los básicos.",
-    finalD1:"8 min de bici o remo, moderado. Debes poder hablar mientras lo haces. No es un intervalo, es riego sanguíneo.",
-    leadD2:"Mismo día que el partido. Tren superior y core. Las piernas ya tienen trabajo esperándolas en la pista.",
-    tabD2:"Día 2 + ⚽",
-    leadSem:"Elige el día del partido: el día fuerte cae 3 días antes.",
+    d2: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"04",sets:3,reps:"3 × 8–12"},
+         {id:"09",sets:2,reps:"2 × 8–10"},{id:"10",sets:2,reps:"2 × 8 /lado"},
+         {id:"03",sets:2,reps:"2 × 10–12"},{id:"05",sets:2,reps:"2 × 10–12"},
+         {id:"02",sets:2,reps:"2 × 8–12",nota:"Variante plana o en máquina"},
+         {id:"08",sets:2,reps:"2 × 10–12 /lado"}],
+    eyebrow:"Lun gimnasio · Mar partido · Jue gimnasio",
+    sub:"El lunes, tren superior para llegar entero al martes. El jueves, las piernas.",
+    leadD1:"Mañana juegas. Hoy, empujes y tirones: las piernas se quedan enteras para la pista.",
+    finalD1:"Opcional, y muy suave: 6–8 min de bici. Mañana hay partido, esto es mover sangre, no cansarte.",
+    leadD2:"Dos días después del partido y cinco antes del siguiente. Es el hueco bueno: hoy cargan las piernas. RIR 2–3 y descanso 2–3 min en los básicos.",
+    tabD2:"Día 2",
+    leadSem:"Elige el día del partido: el Día 1 cae la víspera y el Día 2 dos días después.",
     pickK:"Juego el",
-    whySem:"El fútbol sala no es \"un día de cardio\". Acelerar, frenar, girar y saltar con 110 kg es mucha carga mecánica. El gimnasio construye glúteo, isquio, cuádriceps, espalda y core sin que llegues al partido con las piernas fundidas."
+    whySem:"El fútbol sala ya es tu día de piernas de alta intensidad: acelerar, frenar y girar castiga más que cualquier serie. Por eso la víspera no se tocan, y la carga pesada espera a dos días después, cuando ya has recuperado y quedan cinco para el siguiente partido."
   },
   sinPartido: {
     d1: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
@@ -201,15 +208,15 @@ var PLAN = {
     d2: [{id:"06",sets:3,reps:"3 × 8–10"},{id:"09",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
          {id:"10",sets:2,reps:"2 × 8 /lado"},{id:"02",sets:2,reps:"2 × 8–12",nota:"Variante plana o en máquina"},
          {id:"03",sets:2,reps:"2 × 10–12"},{id:"08",sets:2,reps:"2 × 10 /lado"},{id:"11",sets:1,reps:"8–10 min"}],
-    eyebrow:"Pretemporada · 2 sesiones completas",
-    sub:"Sin partidos, el gimnasio asume todo: piernas completas y el cardio que antes ponía la pista.",
-    leadD1:"Día fuerte. Igual que en semana de partido, pero sin necesidad de guardar nada para el viernes. RIR 2–3.",
+    eyebrow:"Sin partido · 2 sesiones completas",
+    sub:"Sin partido que respetar, el lunes ya puede llevar piernas y el gimnasio asume también el cardio.",
+    leadD1:"Día fuerte y completo: sin partido el martes, las piernas pueden ir el lunes sin miedo. RIR 2–3.",
     finalD1:"8 min de bici o remo, moderado. Y si te sobra tiempo, mejor movilidad que más cardio.",
-    leadD2:"Sin partido, este día cambia de trabajo: entra bisagra de cadera, trabajo a una pierna y cardio real al final.",
+    leadD2:"El segundo día cambia de trabajo: bisagra de cadera, trabajo a una pierna y cardio de verdad al final.",
     tabD2:"Día 2",
     leadSem:"Elige el día del Día 1: el Día 2 cae 3 días después.",
     pickK:"Día 1 el",
-    whySem:"Esta es la ventana buena. Sin partidos puedes cargar las piernas sin miedo y llegar a la vuelta de liga con base. En cuanto vuelvan los partidos, cambia el interruptor: la bisagra y el trabajo unilateral salen del Día 2, o llegarás a la pista con las piernas muertas."
+    whySem:"Esta es la ventana buena. Sin partidos puedes cargar las piernas los dos días y llegar a la vuelta de liga con base. En cuanto vuelvan los partidos, el lunes se vacía de piernas: el martes las necesitas enteras."
   }
 };
 

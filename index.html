@@ -14,9 +14,9 @@
      16, 32 y 48 px para los que no. El color se mantiene al dia con el
      tema elegido desde app.js. -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" href="favicon.svg?v=27" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=27">
-<link rel="manifest" href="site.webmanifest?v=27">
+<link rel="icon" href="favicon.svg?v=28" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=28">
+<link rel="manifest" href="site.webmanifest?v=28">
 <meta name="theme-color" content="#1A1F25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -467,6 +467,14 @@
     <div id="list-d1"></div>
     <h2>Final</h2>
     <div class="note" id="final-d1"></div>
+
+    <div id="bloque-vispera">
+      <h2>Mañana juegas: hoy no</h2>
+      <div class="no">
+        <ul><li>Peso muerto pesado</li><li>Prensa pesada</li><li>Sentadillas</li><li>RDL</li><li>Zancadas</li><li>Step-ups</li></ul>
+      </div>
+      <div class="note">Si te sobran ganas, guárdalas para el jueves. Las piernas cargadas se notan en la primera aceleración.</div>
+    </div>
   </section>
 
   <section id="s-d2" role="tabpanel" aria-labelledby="t-d2" hidden>
@@ -475,16 +483,6 @@
     <div id="list-prev-d2"></div>
     <h2>Sesión</h2>
     <div id="list-d2"></div>
-
-    <div id="bloque-partido">
-      <h2>Prohibido hoy</h2>
-      <div class="no">
-        <ul><li>Peso muerto pesado</li><li>Prensa pesada</li><li>Sentadillas</li><li>RDL</li><li>Zancadas</li><li>Step-ups</li></ul>
-      </div>
-      <h2>Calentamiento antes del partido · 5–8 min</h2>
-      <div id="list-cal"></div>
-      <div class="note">Nada de cardio intenso después del gimnasio. Del vestuario a la pista con esto y ya.</div>
-    </div>
 
     <div id="bloque-sinpartido" hidden>
       <h2>Hoy sí toca</h2>
@@ -512,6 +510,13 @@
       <div class="chips" id="daypick"></div>
     </div>
     <div id="week"></div>
+
+    <div id="bloque-partido">
+      <h2>Calentamiento antes del partido · 5–8 min</h2>
+      <div id="list-cal"></div>
+      <div class="note">En el vestuario, antes de saltar a la pista. El martes no hay gimnasio: esto es todo lo que necesitas.</div>
+    </div>
+
     <h2>Por qué así</h2>
     <div class="note" id="why-sem"></div>
   </section>
@@ -579,12 +584,12 @@
 <!-- ?v=N: GitHub Pages sirve estos ficheros con max-age=600, asi que sin
      esto un cambio tarda hasta 10 min en llegar al navegador. Subir el
      numero al desplegar fuerza la descarga. -->
-<script src="config.js?v=27"></script>
-<script src="js/datos.js?v=27"></script>
-<script src="js/juego.js?v=27"></script>
-<script src="js/respaldo.js?v=27"></script>
-<script src="js/nube.js?v=27"></script>
-<script src="js/app.js?v=27"></script>
+<script src="config.js?v=28"></script>
+<script src="js/datos.js?v=28"></script>
+<script src="js/juego.js?v=28"></script>
+<script src="js/respaldo.js?v=28"></script>
+<script src="js/nube.js?v=28"></script>
+<script src="js/app.js?v=28"></script>
 
 <script>
 /* Registro del service worker. La comprobacion al volver a primer plano

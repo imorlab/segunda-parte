@@ -5,7 +5,7 @@
 (function(){
   "use strict";
 
-  var modo = "conPartido", refDay = 4;   // refDay: viernes
+  var modo = "conPartido", refDay = 1;   // refDay: dia del partido, martes
   var ABR = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 
   /* Descanso: los basicos pesados piden 2 min; el resto se recupera en 90 s. */
@@ -21,9 +21,25 @@
      Se guarda el nombre, no la posicion en la lista: al reordenar los
      sustitutos una posicion guardada pasaria a apuntar a otro ejercicio,
      y te encontrarias haciendo otra cosa sin haber tocado nada. */
-  function claveVar(o){ return o.day + ":" + o.badge + ":" + o.slot; }
+  /* La clave no lleva la posicion del ejercicio en el dia: al reordenar el
+     plan cambiaria y se perderia el sustituto elegido. Un ejercicio no se
+     repite dentro del mismo dia, asi que dia+dorsal basta. */
+  function claveVar(o){ return o.day + ":" + o.badge; }
   function leerVariantes(){
-    try { return JSON.parse(localStorage.getItem("sp:variantes") || "{}"); } catch(e){ return {}; }
+    var v;
+    try { v = JSON.parse(localStorage.getItem("sp:variantes") || "{}"); } catch(e){ return {}; }
+    /* Migracion de las claves viejas (dia:dorsal:posicion), para no perder
+       lo que ya estuviera elegido. */
+    var migra = false, out = {};
+    Object.keys(v).forEach(function(k){
+      var partes = k.split(":");
+      if(partes.length === 3){ out[partes[0] + ":" + partes[1]] = v[k]; migra = true; }
+      else out[k] = v[k];
+    });
+    if(migra){
+      try { localStorage.setItem("sp:variantes", JSON.stringify(out)); } catch(e){}
+    }
+    return out;
   }
   function guardarVariante(o, nombre){
     var v = leerVariantes();
@@ -519,17 +535,31 @@
     var host = $("week");
     host.innerHTML = "";
     var partido = modo === "conPartido";
-    var d2 = partido ? refDay : (refDay + 3) % 7;
-    var d1 = partido ? (refDay - 3 + 7) % 7 : refDay;
+    /* Con partido, refDay es el dia que juegas: el Dia 1 cae la vispera y
+       el Dia 2 dos dias despues. Sin partido, refDay es el Dia 1 y el
+       Dia 2 va tres dias despues. */
+    var juego = partido ? refDay : -1;
+    var d1 = partido ? (refDay - 1 + 7) % 7 : refDay;
+    var d2 = partido ? (refDay + 2) % 7 : (refDay + 3) % 7;
     for(var i = 0; i < 7; i++){
       var cls = "", title = "Descanso", sub = "Nada. El descanso es parte del plan.";
-      if(i === d1){ cls = "hot"; title = "Día 1 — Fuerza completa"; sub = "Peso muerto, prensa, empujes y tirones. RIR 2–3."; }
-      else if(i === d2){
-        cls = "ball";
-        title = partido ? "Día 2 + Fútbol sala" : "Día 2 — Piernas y cardio";
-        sub = partido ? "Tren superior y core, y 1 h de partido." : "Bisagra, unilateral, tirones y 8–10 min de intervalos.";
+      if(i === juego){
+        cls = "ball"; title = "Fútbol sala";
+        sub = "1 h de partido. El calentamiento, abajo.";
       }
-      else if(i === (d1 + 1) % 7 || i === (d2 + 1) % 7){
+      else if(i === d1){
+        cls = "hot";
+        title = partido ? "Día 1 — Tren superior" : "Día 1 — Fuerza completa";
+        sub = partido ? "Empujes, tirones y core. Piernas ni tocarlas: mañana juegas."
+                      : "Peso muerto, prensa, empujes y tirones. RIR 2–3.";
+      }
+      else if(i === d2){
+        cls = "hot";
+        title = partido ? "Día 2 — Piernas y espalda" : "Día 2 — Piernas y cardio";
+        sub = partido ? "El hueco bueno: peso muerto, prensa, RDL y zancadas."
+                      : "Bisagra, unilateral, tirones y 8–10 min de intervalos.";
+      }
+      else if(i === (juego + 1) % 7 || i === (d2 + 1) % 7){
         title = "Recuperación";
         sub = partido ? "Caminar 30–40 min, suave." : "Caminar o bici 25–30 min, suave.";
       }
@@ -553,6 +583,7 @@
     $("lead-sem").textContent = p.leadSem;
     $("pick-k").textContent = p.pickK;
     $("why-sem").textContent = p.whySem;
+    $("bloque-vispera").hidden = !partido;
     $("bloque-partido").hidden = !partido;
     $("bloque-sinpartido").hidden = partido;
 
@@ -928,7 +959,7 @@
     modo = m;
     mSi.setAttribute("aria-pressed", m === "conPartido" ? "true" : "false");
     mNo.setAttribute("aria-pressed", m === "sinPartido" ? "true" : "false");
-    refDay = m === "conPartido" ? 4 : 0;
+    refDay = m === "conPartido" ? 1 : 0;   // martes el partido, lunes el Dia 1
     render();
   }
   mSi.addEventListener("click", function(){ setModo("conPartido"); });

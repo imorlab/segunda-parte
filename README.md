@@ -11,10 +11,14 @@ Supabase, opcional, guarda el historial y lo sincroniza entre dispositivos.
 
 ## Qué hace
 
-- **Día 1** — fuerza completa (peso muerto, prensa, empujes, tirones y hombro), RIR 2–3.
-- **Día 2** — cambia según la semana:
-  - *Hay partido*: tren superior y core. Nada de piernas pesadas antes de jugar.
-  - *Sin partido*: entra bisagra de cadera, trabajo unilateral y 8–10 min de cardio.
+La semana real es **lunes gimnasio, martes partido, jueves gimnasio**, y el plan se
+ordena alrededor de eso:
+
+- **Día 1 (lunes, víspera)** — tren superior y core. Cero piernas: unas sentadillas el
+  lunes se pagan el martes en la primera aceleración.
+- **Día 2 (jueves)** — dos días después del partido y cinco antes del siguiente. Es el
+  hueco bueno de la semana: peso muerto, prensa, RDL y zancadas.
+- Sin partido esa semana, el lunes recupera las piernas y el jueves añade cardio.
 - **Navegación inferior** de cuatro destinos, al alcance del pulgar: Entreno (Día 1 /
   Día 2), Historial, Movilidad y Perfil (Progreso / Semana). La portada solo aparece en
   Entreno; el resto usa cabecera compacta.
@@ -84,7 +88,7 @@ js/app.js         Interfaz
 sql/schema.sql    Esquema de la base de datos
 favicon.svg       Origen del icono; el resto se genera a partir de él
 js/respaldo.js    Exportar e importar el historial
-tools/            Iconos, servidor Supabase falso y pruebas de datos
+tools/            Iconos, servidor Supabase falso y pruebas de datos y de plan
 ```
 
 ## Iconos
