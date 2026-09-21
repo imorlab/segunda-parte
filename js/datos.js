@@ -159,10 +159,11 @@ var EX = {
         "Cambia el objetivo al deltoides posterior en vez del lateral.",
         "Cuerda a la altura de la cara, codos altos y abiertos."]}
     ]},
-  "11": {n:"Cardio: intervalos suaves", q:"intervalos bici estatica principiantes rutina", reps:"8–10 min", c:[
-      "Bici o remo: 40 s a ritmo fuerte / 80 s suave, 4–5 rondas.",
+  "11": {n:"Cardio: intervalos", q:"intervalos bici estatica principiantes rutina", reps:"10–12 min", c:[
+      "Bici o remo: 45 s fuerte / 90 s suave. Empieza en 4 rondas y sube a 6–7.",
       "\"Fuerte\" es no poder mantener una conversación, no reventarte.",
-      "Sin partido, este es el hueco que tienes que tapar."],
+      "En bici o remo, no corriendo: hoy las piernas ya vienen cargadas.",
+      "Esto es lo que te hace llegar al final del partido, no las series."],
     alts:[
       {n:"Caminata en cinta con inclinación", q:"caminar cinta inclinacion cardio", reps:"15 min", c:[
         "Inclinación 8–10%, ritmo cómodo. Cero impacto.",
@@ -187,18 +188,18 @@ var PLAN = {
          {id:"12",sets:3,reps:"3 × 12–15"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
     d2: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"04",sets:3,reps:"3 × 8–12"},
          {id:"09",sets:2,reps:"2 × 8–10"},{id:"10",sets:2,reps:"2 × 8 /lado"},
-         {id:"03",sets:2,reps:"2 × 10–12"},{id:"05",sets:2,reps:"2 × 10–12"},
+         {id:"03",sets:2,reps:"2 × 10–12"},
          {id:"02",sets:2,reps:"2 × 8–12",nota:"Variante plana o en máquina"},
-         {id:"08",sets:2,reps:"2 × 10–12 /lado"}],
+         {id:"08",sets:2,reps:"2 × 10–12 /lado"},{id:"11",sets:1,reps:"10–12 min"}],
     eyebrow:"Lun gimnasio · Mar partido · Jue gimnasio",
     sub:"El lunes, tren superior para llegar entero al martes. El jueves, las piernas.",
     leadD1:"Mañana juegas. Hoy, empujes y tirones: las piernas se quedan enteras para la pista.",
-    finalD1:"Opcional, y muy suave: 6–8 min de bici. Mañana hay partido, esto es mover sangre, no cansarte.",
-    leadD2:"Dos días después del partido y cinco antes del siguiente. Es el hueco bueno: hoy cargan las piernas. RIR 2–3 y descanso 2–3 min en los básicos.",
+    finalD1:"12–15 min de bici o remo a ritmo de conversación. Suave de verdad: mañana juegas, y lo que estorba a un partido son los intervalos, no esto. Aquí se construye el aguante que te falta al final del partido.",
+    leadD2:"Dos días después del partido y cinco antes del siguiente. Es el hueco bueno: hoy cargan las piernas y se cierra con intervalos. RIR 2–3 y descanso 2–3 min en los básicos.",
     tabD2:"Día 2",
     leadSem:"Elige el día del partido: el Día 1 cae la víspera y el Día 2 dos días después.",
     pickK:"Juego el",
-    whySem:"El fútbol sala ya es tu día de piernas de alta intensidad: acelerar, frenar y girar castiga más que cualquier serie. Por eso la víspera no se tocan, y la carga pesada espera a dos días después, cuando ya has recuperado y quedan cinco para el siguiente partido."
+    whySem:"El fútbol sala ya es tu día de piernas de alta intensidad: acelerar, frenar y girar castiga más que cualquier serie. Por eso la víspera no se tocan, y la carga pesada espera a dos días después, cuando ya has recuperado y quedan cinco para el siguiente partido. El cardio va repartido a propósito: suave el lunes y el miércoles para construir base, e intervalos solo el jueves, lo más lejos posible del partido. Lo que te hace aguantar la hora es la base aeróbica, porque es la que te recupera entre sprint y sprint."
   },
   sinPartido: {
     d1: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},

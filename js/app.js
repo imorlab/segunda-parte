@@ -559,9 +559,16 @@
         sub = partido ? "El hueco bueno: peso muerto, prensa, RDL y zancadas."
                       : "Bisagra, unilateral, tirones y 8–10 min de intervalos.";
       }
-      else if(i === (juego + 1) % 7 || i === (d2 + 1) % 7){
+      else if(partido && i === (juego + 1) % 7){
+        /* El dia despues del partido cumple doble: descarga las piernas y
+           suma base aerobica, que es lo que falta para aguantar la hora. */
+        cls = "hot";
+        title = "Aeróbico suave · 25–35 min";
+        sub = "Bici, caminar rápido o elíptica, a ritmo de conversación. Ni un sprint.";
+      }
+      else if(i === (d2 + 1) % 7){
         title = "Recuperación";
-        sub = partido ? "Caminar 30–40 min, suave." : "Caminar o bici 25–30 min, suave.";
+        sub = partido ? "Caminar 20–30 min, suave." : "Caminar o bici 25–30 min, suave.";
       }
       var row = document.createElement("div");
       row.className = "day " + cls;

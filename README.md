@@ -19,6 +19,11 @@ ordena alrededor de eso:
 - **Día 2 (jueves)** — dos días después del partido y cinco antes del siguiente. Es el
   hueco bueno de la semana: peso muerto, prensa, RDL y zancadas.
 - Sin partido esa semana, el lunes recupera las piernas y el jueves añade cardio.
+
+El **acondicionamiento** va repartido a propósito: suave el lunes (12–15 min) y el
+miércoles (25–35 min) para construir base, e intervalos solo el jueves, lo más lejos
+posible del partido. Lo que decide si aguantas la hora es la base aeróbica, porque es la
+que te recupera entre sprint y sprint; los intervalos la víspera solo restan.
 - **Navegación inferior** de cuatro destinos, al alcance del pulgar: Entreno (Día 1 /
   Día 2), Historial, Movilidad y Perfil (Progreso / Semana). La portada solo aparece en
   Entreno; el resto usa cabecera compacta.
