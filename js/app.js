@@ -564,7 +564,7 @@
            suma base aerobica, que es lo que falta para aguantar la hora. */
         cls = "hot";
         title = "Aeróbico suave · 25–35 min";
-        sub = "Bici, caminar rápido o elíptica, a ritmo de conversación. Ni un sprint.";
+        sub = "Bici, elíptica o caminar rápido en cuesta. Sin correr y sin sprints.";
       }
       else if(i === (d2 + 1) % 7){
         title = "Recuperación";

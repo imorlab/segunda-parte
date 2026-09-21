@@ -24,6 +24,10 @@ El **acondicionamiento** va repartido a propósito: suave el lunes (12–15 min)
 miércoles (25–35 min) para construir base, e intervalos solo el jueves, lo más lejos
 posible del partido. Lo que decide si aguantas la hora es la base aeróbica, porque es la
 que te recupera entre sprint y sprint; los intervalos la víspera solo restan.
+
+«Suave» quiere decir un ritmo en el que puedas hablar en frases enteras: bici estática,
+elíptica, remo o caminar rápido en cuesta. Correr no, de momento — el fútbol sala ya
+aporta todo el impacto, y a media forma el trote «suave» se va de ritmo casi siempre.
 - **Navegación inferior** de cuatro destinos, al alcance del pulgar: Entreno (Día 1 /
   Día 2), Historial, Movilidad y Perfil (Progreso / Semana). La portada solo aparece en
   Entreno; el resto usa cabecera compacta.
