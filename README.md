@@ -16,6 +16,10 @@ ordena alrededor de eso:
 
 - **Día 1 (lunes, víspera)** — tren superior y core. Cero piernas: unas sentadillas el
   lunes se pagan el martes en la primera aceleración.
+- **Series enlazadas**: los ejercicios se agrupan de tres en tres (campo `g` en el plan)
+  emparejando movimientos que no compiten. Dentro del grupo el descanso es de 30 s, el
+  que tardas en cambiar de máquina; el descanso de verdad va al cerrar la vuelta. Así
+  cada ejercicio acaba con 4 min reales entre series suyas sin alargar la sesión.
 - **Día 2 (jueves)** — dos días después del partido y cinco antes del siguiente. Es el
   hueco bueno de la semana: peso muerto, prensa, RDL y zancadas.
 - Sin partido esa semana, el lunes recupera las piernas y el jueves añade cardio.

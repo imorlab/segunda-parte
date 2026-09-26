@@ -14,9 +14,9 @@
      16, 32 y 48 px para los que no. El color se mantiene al dia con el
      tema elegido desde app.js. -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" href="favicon.svg?v=30" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=30">
-<link rel="manifest" href="site.webmanifest?v=30">
+<link rel="icon" href="favicon.svg?v=31" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=31">
+<link rel="manifest" href="site.webmanifest?v=31">
 <meta name="theme-color" content="#1A1F25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -184,7 +184,16 @@
   h2{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:26px 0 10px;color:var(--texto)}
   h2:first-child{margin-top:0}
 
+  /* Series enlazadas: una cabecera por grupo y un filo de color en las
+     fichas que van juntas, para verlas como un bloque y no como tres
+     ejercicios sueltos. */
+  .grupoCab{display:flex;flex-direction:column;gap:2px;margin:20px 0 8px;padding-left:3px}
+  .grupoCab b{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--acento)}
+  .grupoCab i{font-style:normal;font-size:11.5px;line-height:1.35;color:var(--texto2)}
+  .grupoCab + .ex{margin-top:0}
+
   .ex{border:1px solid var(--borde);border-radius:14px;background:var(--panel);margin-bottom:10px;overflow:hidden}
+  .ex.eng{border-left:3px solid var(--acento);border-top-left-radius:6px;border-bottom-left-radius:6px}
   .ex.cal{background:transparent}
   .ex.cal .dorsal{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;min-width:31px}
   .ex.cal .nm b{font-weight:600;font-size:14.5px}
@@ -594,12 +603,12 @@
 <!-- ?v=N: GitHub Pages sirve estos ficheros con max-age=600, asi que sin
      esto un cambio tarda hasta 10 min en llegar al navegador. Subir el
      numero al desplegar fuerza la descarga. -->
-<script src="config.js?v=30"></script>
-<script src="js/datos.js?v=30"></script>
-<script src="js/juego.js?v=30"></script>
-<script src="js/respaldo.js?v=30"></script>
-<script src="js/nube.js?v=30"></script>
-<script src="js/app.js?v=30"></script>
+<script src="config.js?v=31"></script>
+<script src="js/datos.js?v=31"></script>
+<script src="js/juego.js?v=31"></script>
+<script src="js/respaldo.js?v=31"></script>
+<script src="js/nube.js?v=31"></script>
+<script src="js/app.js?v=31"></script>
 
 <script>
 /* Registro del service worker. La comprobacion al volver a primer plano

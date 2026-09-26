@@ -159,6 +159,22 @@ var EX = {
         "Cambia el objetivo al deltoides posterior en vez del lateral.",
         "Cuerda a la altura de la cara, codos altos y abiertos."]}
     ]},
+  "13": {n:"Cardio suave", q:"cardio zona 2 bici estatica ritmo conversacion", reps:"12–15 min", c:[
+      "Bici, elíptica o remo a un ritmo en el que puedas hablar en frases enteras.",
+      "Si solo te salen tres o cuatro palabras seguidas, vas demasiado fuerte.",
+      "Corriendo no: mañana juegas y el fútbol sala ya pone todo el impacto.",
+      "Tiene que resultarte aburrido. Si acabas cansado, has ido pasado."],
+    alts:[
+      {n:"Caminar rápido en cuesta", q:"caminar cinta inclinacion cardio zona 2", c:[
+        "Cinta al 6–10% y paso vivo, sin agarrarte a las barras.",
+        "En llano solo cuenta si vas ligero de verdad."]},
+      {n:"Elíptica continua", q:"eliptica ritmo continuo principiantes", c:[
+        "Resistencia baja y cadencia constante.",
+        "Cero impacto: ideal el día antes de jugar."]},
+      {n:"Remo continuo", q:"remo maquina ritmo continuo tecnica", c:[
+        "Ritmo bajo y constante, 20–22 paladas por minuto.",
+        "Empuja con las piernas, no tires con los brazos."]}
+    ]},
   "11": {n:"Cardio: intervalos", q:"intervalos bici estatica principiantes rutina", reps:"10–12 min", c:[
       "Bici o remo: 45 s fuerte / 90 s suave. Empieza en 4 rondas y sube a 6–7.",
       "\"Fuerte\" es no poder mantener una conversación, no reventarte.",
@@ -178,42 +194,64 @@ var EX = {
 
 var PLAN = {
   /* Semana real: lunes gimnasio, martes partido, jueves gimnasio.
-     El Dia 1 cae la VISPERA del partido, asi que no lleva piernas: unas
-     sentadillas el lunes se pagan el martes en la pista. Toda la carga de
-     pierna se va al Dia 2, que queda dos dias despues del partido y cinco
-     antes del siguiente, que es el hueco bueno de la semana. */
+     El Dia 1 cae la VISPERA del partido y por eso no lleva piernas.
+
+     El campo "g" agrupa ejercicios en series enlazadas: se encadenan los
+     tres de un grupo con un descanso corto entre ellos y uno largo al
+     cerrar la vuelta. Se emparejan movimientos que no compiten (empuje
+     con tiron, o pierna con tren superior) para que uno descanse mientras
+     el otro trabaja. */
   conPartido: {
-    d1: [{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
-         {id:"06",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
-         {id:"12",sets:3,reps:"3 × 12–15"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
-    d2: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"04",sets:3,reps:"3 × 8–12"},
-         {id:"09",sets:2,reps:"2 × 8–10"},{id:"10",sets:2,reps:"2 × 8 /lado"},
-         {id:"03",sets:2,reps:"2 × 10–12"},{id:"05",sets:2,reps:"2 × 10–12"},
-         {id:"02",sets:2,reps:"2 × 8–12",nota:"Variante plana o en máquina"},
-         {id:"08",sets:2,reps:"2 × 10–12 /lado"},{id:"11",sets:1,reps:"10–12 min"}],
+    d1: [{id:"02",g:"A",sets:3,reps:"3 × 8–10"},
+         {id:"03",g:"A",sets:3,reps:"3 × 8–12"},
+         {id:"08",g:"A",sets:3,reps:"3 × 10–12 /lado"},
+         {id:"05",g:"B",sets:3,reps:"3 × 8–12"},
+         {id:"12",g:"B",sets:3,reps:"3 × 12–15"},
+         {id:"07",g:"B",sets:3,reps:"3 × 30–40 s"},
+         {id:"13",sets:1,reps:"12–15 min"}],
+    d2: [{id:"09",g:"A",sets:3,reps:"3 × 8–10"},
+         {id:"06",g:"A",sets:3,reps:"3 × 8–10"},
+         {id:"03",g:"A",sets:3,reps:"3 × 10–12"},
+         {id:"04",g:"B",sets:3,reps:"3 × 8–12"},
+         {id:"05",g:"B",sets:3,reps:"3 × 10–12"},
+         {id:"02",g:"B",sets:3,reps:"3 × 8–12",nota:"Variante plana o en máquina"},
+         {id:"10",g:"C",sets:2,reps:"2 × 8 /lado"},
+         {id:"08",g:"C",sets:2,reps:"2 × 10–12 /lado"},
+         {id:"11",sets:1,reps:"10–12 min"}],
     eyebrow:"Lun gimnasio · Mar partido · Jue gimnasio",
     sub:"El lunes, tren superior para llegar entero al martes. El jueves, las piernas.",
-    leadD1:"Mañana juegas. Hoy, empujes y tirones: las piernas se quedan enteras para la pista.",
-    finalD1:"12–15 min en bici estática, elíptica o remo, con resistencia suficiente para respirar fuerte pero poder hablar en frases enteras. Corriendo no: mañana juegas. Esto no cansa, construye el aguante que te falta al final del partido.",
-    leadD2:"Dos días después del partido y cinco antes del siguiente. Es el hueco bueno: hoy cargan las piernas y se cierra con intervalos. RIR 2–3 y descanso 2–3 min en los básicos.",
+    leadD1:"Mañana juegas. Hoy, empujes y tirones en series enlazadas: las piernas se quedan enteras para la pista.",
+    finalD1:"El cardio de hoy cierra la sesión y va suave a propósito: mañana hay partido y lo que estorba son los intervalos, no esto.",
+    leadD2:"Dos días después del partido y cinco antes del siguiente. Es el hueco bueno: hoy cargan las piernas y se cierra con intervalos. RIR 2–3.",
     tabD2:"Día 2",
     leadSem:"Elige el día del partido: el Día 1 cae la víspera y el Día 2 dos días después.",
     pickK:"Juego el",
     whySem:"El fútbol sala ya es tu día de piernas de alta intensidad: acelerar, frenar y girar castiga más que cualquier serie. Por eso la víspera no se tocan, y la carga pesada espera a dos días después, cuando ya has recuperado y quedan cinco para el siguiente partido. El cardio va repartido a propósito: suave el lunes y el miércoles para construir base, e intervalos solo el jueves, lo más lejos posible del partido. Lo que te hace aguantar la hora es la base aeróbica, porque es la que te recupera entre sprint y sprint."
   },
   sinPartido: {
-    d1: [{id:"01",sets:3,reps:"3 × 6–8"},{id:"02",sets:3,reps:"3 × 8–10"},{id:"03",sets:3,reps:"3 × 8–12"},
-         {id:"04",sets:3,reps:"3 × 10–12",nota:"Un poco más de repeticiones, sin partido que respetar"},
-         {id:"05",sets:2,reps:"2 × 10–12"},
-         {id:"12",sets:3,reps:"3 × 12–15"},{id:"08",sets:2,reps:"2 × 10–12 /lado"}],
-    d2: [{id:"06",sets:3,reps:"3 × 8–10"},{id:"09",sets:3,reps:"3 × 8–10"},{id:"05",sets:3,reps:"3 × 8–12"},
-         {id:"10",sets:2,reps:"2 × 8 /lado"},{id:"02",sets:2,reps:"2 × 8–12",nota:"Variante plana o en máquina"},
-         {id:"03",sets:2,reps:"2 × 10–12"},{id:"08",sets:2,reps:"2 × 10 /lado"},{id:"11",sets:1,reps:"8–10 min"}],
+    d1: [{id:"01",g:"A",sets:3,reps:"3 × 6–8"},
+         {id:"02",g:"A",sets:3,reps:"3 × 8–10"},
+         {id:"03",g:"A",sets:3,reps:"3 × 8–12"},
+         {id:"04",g:"B",sets:3,reps:"3 × 10–12"},
+         {id:"05",g:"B",sets:3,reps:"3 × 8–12"},
+         {id:"12",g:"B",sets:3,reps:"3 × 12–15"},
+         {id:"08",g:"C",sets:2,reps:"2 × 10–12 /lado"},
+         {id:"07",g:"C",sets:2,reps:"2 × 30–40 s"},
+         {id:"13",sets:1,reps:"12–15 min"}],
+    d2: [{id:"09",g:"A",sets:3,reps:"3 × 8–10"},
+         {id:"06",g:"A",sets:3,reps:"3 × 8–10"},
+         {id:"03",g:"A",sets:3,reps:"3 × 10–12"},
+         {id:"04",g:"B",sets:3,reps:"3 × 8–12"},
+         {id:"05",g:"B",sets:3,reps:"3 × 10–12"},
+         {id:"02",g:"B",sets:3,reps:"3 × 8–12",nota:"Variante plana o en máquina"},
+         {id:"10",g:"C",sets:2,reps:"2 × 8 /lado"},
+         {id:"08",g:"C",sets:2,reps:"2 × 10–12 /lado"},
+         {id:"11",sets:1,reps:"10–12 min"}],
     eyebrow:"Sin partido · 2 sesiones completas",
-    sub:"Sin partido que respetar, el lunes ya puede llevar piernas y el gimnasio asume también el cardio.",
-    leadD1:"Día fuerte y completo: sin partido el martes, las piernas pueden ir el lunes sin miedo. RIR 2–3.",
-    finalD1:"8 min de bici o remo, moderado. Y si te sobra tiempo, mejor movilidad que más cardio.",
-    leadD2:"El segundo día cambia de trabajo: bisagra de cadera, trabajo a una pierna y cardio de verdad al final.",
+    sub:"Sin partido que respetar, el lunes ya puede llevar piernas pesadas.",
+    leadD1:"Día fuerte y completo: sin partido el martes, el peso muerto y la prensa pueden ir hoy. RIR 2–3.",
+    finalD1:"Cardio suave para cerrar. Y si te sobra tiempo, mejor movilidad que más cardio.",
+    leadD2:"Bisagra, unilateral y tirones, con intervalos al final. Mismo esquema que en semana de partido.",
     tabD2:"Día 2",
     leadSem:"Elige el día del Día 1: el Día 2 cae 3 días después.",
     pickK:"Día 1 el",

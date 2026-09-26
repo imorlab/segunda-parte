@@ -11,6 +11,9 @@
   /* Descanso: los basicos pesados piden 2 min; el resto se recupera en 90 s. */
   var BASICO = {"01":1,"02":1,"04":1,"06":1,"09":1};
   function restDe(id){ return BASICO[id] ? 120 : 90; }
+  /* Dentro de una serie enlazada solo se descansa lo que tardas en
+     cambiar de maquina. El descanso de verdad va al cerrar la vuelta. */
+  var DESCANSO_ENLACE = 30;
 
   function $(id){ return document.getElementById(id); }
 
@@ -397,7 +400,7 @@
         vibrar(18);
         cerrarSiProcede(o.day);
         celebrar(antes);
-        arrancarDescanso(o.rest);
+        arrancarDescanso(o.cierra ? o.rest : DESCANSO_ENLACE);
       }
       repintarFichas(el, o);
       marcador();
@@ -498,16 +501,38 @@
 
   /* ------------------------------------------------------------- construir */
 
+  function cabeceraGrupo(letra, plan) {
+    var del = plan.filter(function(x){ return x.g === letra; });
+    var e = document.createElement("div");
+    e.className = "grupoCab";
+    e.innerHTML = "<b></b><i></i>";
+    e.querySelector("b").textContent = "Enlazadas " + letra;
+    e.querySelector("i").textContent =
+      del[0].sets + (del[0].sets === 1 ? " vuelta" : " vueltas") + " · " +
+      del.map(function(x){ return EX[x.id].n; }).join(" → ") +
+      " · descanso corto entre ellos, largo al cerrar";
+    return e;
+  }
+
   function buildDay(target, plan, day){
     var host = $(target);
     host.innerHTML = "";
+    var grupo = null;
     plan.forEach(function(p, idx){
+      if(p.g && p.g !== grupo){ grupo = p.g; host.appendChild(cabeceraGrupo(p.g, plan)); }
+      if(!p.g) grupo = null;
       var b = EX[p.id];
-      host.appendChild(card({
+      var sig = plan[idx + 1];
+      var el = card({
         badge: p.id, slot: idx, day: day, rest: restDe(p.id),
+        grupo: p.g || null,
+        /* Al ultimo del grupo le toca el descanso largo: cierra la vuelta. */
+        cierra: !p.g || !sig || sig.g !== p.g,
         n: b.n, q: b.q, c: b.c, alts: b.alts,
         reps: p.reps, sets: p.sets, nota: p.nota
-      }));
+      });
+      if(p.g) el.classList.add("eng");
+      host.appendChild(el);
     });
   }
   function buildSimple(target, arr){
@@ -1227,7 +1252,7 @@
 
   /* ----------------------------------------------------------- cronometro */
 
-  var lens = [60,90,120], li = 1, left = 90, tick = null, total = 90;
+  var lens = [30,60,90,120], li = 2, left = 90, tick = null, total = 90;
   var clock = $("clock"), startB = $("tStart"), setB = $("tSet");
   var barraD = document.createElement("span");
   barraD.className = "barraDesc";
